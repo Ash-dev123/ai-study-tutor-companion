@@ -179,7 +179,7 @@ export default function Home() {
                     <TypingAnimation 
                       text={`${userName}?`} 
                       speed={10}
-                      delay={100}
+                      delay={500}
                     />
                   </span>
                 </>
