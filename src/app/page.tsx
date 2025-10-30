@@ -66,7 +66,7 @@ export default function Home() {
                 <GraduationCap className="h-7 w-7 text-primary transition-transform group-hover:scale-110" />
                 <Sparkles className="absolute -right-1 -top-1 h-3 w-3 text-primary/60" />
               </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">StudySphere</h1>
+              <h1 className="text-2xl font-bold">StudySphere</h1>
             </Link>
             {session?.user && (
               <div className="hidden md:flex items-center gap-1">
