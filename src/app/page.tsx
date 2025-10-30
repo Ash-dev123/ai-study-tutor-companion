@@ -194,7 +194,7 @@ export default function Home() {
                     <TypingAnimation 
                       text="Socratic AI Tutoring" 
                       speed={10}
-                      delay={100}
+                      delay={200}
                     />
                   </span>
                 </>
