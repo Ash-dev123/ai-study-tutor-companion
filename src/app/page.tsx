@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { TypingAnimation } from "@/components/typing-animation";
 import {
   MessageCircle,
   Brain,
@@ -169,16 +170,32 @@ export default function Home() {
             <h1 className="mb-8 text-6xl font-extrabold tracking-tight lg:text-8xl animate-in fade-in slide-in-from-bottom-4 duration-1000">
               {session?.user ? (
                 <>
-                  Ready to Learn,
+                  <TypingAnimation 
+                    text="Ready to Learn," 
+                    speed={80}
+                    delay={500}
+                  />
                   <span className="block mt-2 bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
-                    {userName}?
+                    <TypingAnimation 
+                      text={`${userName}?`} 
+                      speed={80}
+                      delay={1500}
+                    />
                   </span>
                 </>
               ) : (
                 <>
-                  Learn Smarter with
+                  <TypingAnimation 
+                    text="Learn Smarter with" 
+                    speed={80}
+                    delay={500}
+                  />
                   <span className="block mt-2 bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
-                    Socratic AI Tutoring
+                    <TypingAnimation 
+                      text="Socratic AI Tutoring" 
+                      speed={80}
+                      delay={1800}
+                    />
                   </span>
                 </>
               )}
