@@ -178,8 +178,8 @@ export default function Home() {
                   <span className="block mt-2 bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
                     <TypingAnimation 
                       text={`${userName}?`} 
-                      speed={30}
-                      delay={500}
+                      speed={10}
+                      delay={100}
                     />
                   </span>
                 </>
@@ -187,8 +187,8 @@ export default function Home() {
                 <>
                   <TypingAnimation 
                     text="Learn Smarter with" 
-                    speed={80}
-                    delay={500}
+                    speed={10}
+                    delay={100}
                   />
                   <span className="block mt-2 bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
                     <TypingAnimation 
