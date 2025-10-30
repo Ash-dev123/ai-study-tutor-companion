@@ -104,6 +104,10 @@ export const studyElite = product({
       interval: "month",
     }),
     featureItem({
+      feature_id: messages.id,
+      unlimited: true,
+    }),
+    featureItem({
       feature_id: priorityResponse.id,
     }),
     featureItem({
