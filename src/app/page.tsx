@@ -26,11 +26,9 @@ import Link from "next/link";
 import { useSession, authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useCustomer } from "autumn-js/react";
 
 export default function Home() {
   const { data: session, isPending, refetch } = useSession();
-  const { customer, isLoading: customerLoading } = useCustomer();
   const router = useRouter();
   const [email, setEmail] = useState("No credit card required | Free Trial Available");
 
@@ -52,8 +50,6 @@ export default function Home() {
   };
 
   const userName = session?.user?.name?.split(" ")[0] || "there";
-  const currentPlan = customer?.products?.at(-1);
-  const planName = currentPlan?.name || "Free Plan";
 
   return (
     <div className="min-h-screen bg-background">
@@ -80,11 +76,6 @@ export default function Home() {
                     Archive
                   </Button>
                 </Link>
-                <Link href="/pricing">
-                  <Button variant="ghost" size="sm" className="hover:bg-primary/5">
-                    Pricing
-                  </Button>
-                </Link>
                 <Link href="/settings">
                   <Button variant="ghost" size="sm" className="hover:bg-primary/5">
                     Settings
@@ -95,15 +86,10 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-2">
-            {isPending || customerLoading ?
+            {isPending ?
             <div className="h-8 w-8 animate-pulse rounded-full bg-muted" /> :
             session?.user ?
             <>
-                <Link href="/pricing">
-                  <Badge variant="secondary" className="px-3 py-1.5 text-xs font-medium cursor-pointer hover:bg-primary/20 transition-colors">
-                    {planName}
-                  </Badge>
-                </Link>
                 <Link href="/chat">
                   <Button size="sm" className="shadow-sm hover:shadow-md transition-shadow">
                     <MessageCircle className="mr-2 h-4 w-4" />
