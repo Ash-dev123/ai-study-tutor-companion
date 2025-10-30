@@ -7,10 +7,18 @@ import { db } from "@/db";
  
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
-		provider: "sqlite",
+		provider: "pg",
 	}),
 	emailAndPassword: {    
 		enabled: true
+	},
+	session: {
+		expiresIn: 60 * 60 * 24 * 7, // 7 days (default)
+		updateAge: 60 * 60 * 24, // 1 day (update session every day)
+		cookieCache: {
+			enabled: true,
+			maxAge: 60 * 60 * 24 * 365 // 1 year for remember me
+		}
 	},
 	socialProviders: {
 		google: {
