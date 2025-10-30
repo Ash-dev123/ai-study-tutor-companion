@@ -193,8 +193,8 @@ export default function Home() {
                   <span className="block mt-2 bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
                     <TypingAnimation 
                       text="Socratic AI Tutoring" 
-                      speed={80}
-                      delay={1800}
+                      speed={10}
+                      delay={100}
                     />
                   </span>
                 </>
