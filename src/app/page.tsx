@@ -175,7 +175,7 @@ export default function Home() {
                     speed={40}
                     delay={500}
                   />
-                  <span className="block mt-2 bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
+                  <span className="block mt-2">
                     <TypingAnimation 
                       text={`${userName}?`} 
                       speed={10}
@@ -190,7 +190,7 @@ export default function Home() {
                     speed={10}
                     delay={100}
                   />
-                  <span className="block mt-2 bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
+                  <span className="block mt-2">
                     <TypingAnimation 
                       text="Socratic AI Tutoring" 
                       speed={10}
@@ -335,7 +335,7 @@ export default function Home() {
               <Zap className="mr-1.5 h-3 w-3" />
               Powerful Tools
             </Badge>
-            <h2 className="mb-6 text-5xl font-bold lg:text-6xl bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">
+            <h2 className="mb-6 text-5xl font-bold lg:text-6xl">
               Powerful Features
             </h2>
             <p className="mx-auto max-w-3xl text-xl text-muted-foreground leading-relaxed">
@@ -415,7 +415,7 @@ export default function Home() {
               <Brain className="mr-1.5 h-3 w-3" />
               Real Examples
             </Badge>
-            <h2 className="mb-6 text-5xl font-bold lg:text-6xl bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">
+            <h2 className="mb-6 text-5xl font-bold lg:text-6xl">
               See It In Action
             </h2>
             <p className="mx-auto max-w-3xl text-xl text-muted-foreground leading-relaxed">
@@ -594,7 +594,7 @@ export default function Home() {
         <div className="container relative mx-auto px-4">
           <div className="mx-auto max-w-4xl text-center">
             <Sparkles className="mx-auto mb-6 h-12 w-12 text-primary animate-pulse" />
-            <h2 className="mb-6 text-5xl font-bold lg:text-6xl bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">
+            <h2 className="mb-6 text-5xl font-bold lg:text-6xl">
               {session?.user ? `Keep Learning, ${userName}!` : "Ready to Transform Your Learning?"}
             </h2>
             <p className="mb-10 text-xl text-muted-foreground leading-relaxed">
