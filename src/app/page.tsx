@@ -19,8 +19,8 @@ import {
   User,
   Sparkles,
   GraduationCap,
-  Target
-} from "lucide-react";
+  Target } from
+"lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 import { useSession, authClient } from "@/lib/auth-client";
@@ -68,8 +68,8 @@ export default function Home() {
               </div>
               <h1 className="text-2xl font-bold">StudySphere</h1>
             </Link>
-            {session?.user && (
-              <div className="hidden md:flex items-center gap-1">
+            {session?.user &&
+            <div className="hidden md:flex items-center gap-1">
                 <Link href="/chat">
                   <Button variant="ghost" size="sm" className="hover:bg-primary/5">
                     Chat
@@ -91,14 +91,14 @@ export default function Home() {
                   </Button>
                 </Link>
               </div>
-            )}
+            }
           </div>
 
           <div className="flex items-center gap-2">
-            {isPending || customerLoading ? (
-              <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
-            ) : session?.user ? (
-              <>
+            {isPending || customerLoading ?
+            <div className="h-8 w-8 animate-pulse rounded-full bg-muted" /> :
+            session?.user ?
+            <>
                 <Link href="/pricing">
                   <Badge variant="secondary" className="px-3 py-1.5 text-xs font-medium cursor-pointer hover:bg-primary/20 transition-colors">
                     {planName}
@@ -111,25 +111,25 @@ export default function Home() {
                   </Button>
                 </Link>
                 <Button
-                  size="icon"
-                  variant="outline"
-                  className="rounded-full hover:bg-primary/5 transition-colors"
-                  title={session.user.name || "User"}
-                >
+                size="icon"
+                variant="outline"
+                className="rounded-full hover:bg-primary/5 transition-colors"
+                title={session.user.name || "User"}>
+
                   <User className="h-4 w-4" />
                 </Button>
                 <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={handleSignOut}
-                  title="Sign out"
-                  className="hover:bg-destructive/10 hover:text-destructive transition-colors"
-                >
+                size="icon"
+                variant="ghost"
+                onClick={handleSignOut}
+                title="Sign out"
+                className="hover:bg-destructive/10 hover:text-destructive transition-colors">
+
                   <LogOut className="h-4 w-4" />
                 </Button>
-              </>
-            ) : (
-              <>
+              </> :
+
+            <>
                 <Link href="/login">
                   <Button variant="ghost" size="sm" className="hover:bg-primary/5">
                     Log In
@@ -141,7 +141,7 @@ export default function Home() {
                   </Button>
                 </Link>
               </>
-            )}
+            }
           </div>
         </div>
       </nav>
@@ -155,61 +155,61 @@ export default function Home() {
         
         <div className="container relative mx-auto px-4 py-24 lg:py-40">
           <div className="mx-auto max-w-5xl text-center">
-            {session?.user ? (
-              <Badge className="mb-6 shadow-lg" variant="secondary">
+            {session?.user ?
+            <Badge className="mb-6 shadow-lg" variant="secondary">
                 <Sparkles className="mr-1.5 h-3 w-3" />
                 Welcome back, {userName}!
-              </Badge>
-            ) : (
-              <Badge className="mb-6 shadow-lg animate-in fade-in slide-in-from-bottom-3 duration-700" variant="secondary">
+              </Badge> :
+
+            <Badge className="mb-6 shadow-lg animate-in fade-in slide-in-from-bottom-3 duration-700" variant="secondary">
                 <Sparkles className="mr-1.5 h-3 w-3" />
                 AI-Powered Learning Revolution
               </Badge>
-            )}
+            }
             
             <h1 className="mb-8 text-6xl font-extrabold tracking-tight lg:text-8xl animate-in fade-in slide-in-from-bottom-4 duration-1000">
-              {session?.user ? (
-                <>
-                  <TypingAnimation 
-                    text="Ready to Learn," 
-                    speed={40}
-                    delay={500}
-                  />
+              {session?.user ?
+              <>
+                  <TypingAnimation
+                  text="Ready to Learn,"
+                  speed={40}
+                  delay={500} />
+
                   <span className="block mt-2">
-                    <TypingAnimation 
-                      text={`${userName}?`} 
-                      speed={10}
-                      delay={500}
-                    />
-                  </span>
-                </>
-              ) : (
-                <>
-                  <TypingAnimation 
-                    text="Learn Smarter with" 
+                    <TypingAnimation
+                    text={`${userName}?`}
                     speed={10}
-                    delay={100}
-                  />
+                    delay={500} />
+
+                  </span>
+                </> :
+
+              <>
+                  <TypingAnimation
+                  text="Learn Smarter with"
+                  speed={10}
+                  delay={100} />
+
                   <span className="block mt-2">
-                    <TypingAnimation 
-                      text="Socratic AI Tutoring" 
-                      speed={10}
-                      delay={200}
-                    />
+                    <TypingAnimation
+                    text="Socratic AI Tutoring"
+                    speed={10}
+                    delay={200} />
+
                   </span>
                 </>
-              )}
+              }
             </h1>
             
             <p className="mx-auto mb-10 max-w-3xl text-xl text-muted-foreground lg:text-2xl leading-relaxed animate-in fade-in slide-in-from-bottom-5 duration-1000 delay-150">
-              {session?.user
-                ? "Your personal AI study tutor is ready to help you master any subject with the Socratic method."
-                : "Your personal AI-powered study companion that guides you to truly understand concepts through interactive questioning, not just memorization."}
+              {session?.user ?
+              "Your personal AI study tutor is ready to help you master any subject with the Socratic method." :
+              "Your personal AI-powered study companion that guides you to truly understand concepts through interactive questioning, not just memorization."}
             </p>
             
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-300">
-              {session?.user ? (
-                <>
+              {session?.user ?
+              <>
                   <Link href="/chat">
                     <Button size="lg" className="text-lg px-8 py-6 shadow-xl hover:shadow-2xl transition-all hover:scale-105">
                       <MessageCircle className="mr-2 h-5 w-5" />
@@ -221,9 +221,9 @@ export default function Home() {
                       View Archive
                     </Button>
                   </Link>
-                </>
-              ) : (
-                <>
+                </> :
+
+              <>
                   <Link href="/register">
                     <Button size="lg" className="text-lg px-8 py-6 shadow-xl hover:shadow-2xl transition-all hover:scale-105">
                       Get Started Free <ArrowRight className="ml-2 h-5 w-5" />
@@ -233,14 +233,14 @@ export default function Home() {
                     Watch Demo
                   </Button>
                 </>
-              )}
+              }
             </div>
             
-            {!session?.user && (
-              <p className="mt-6 text-sm text-muted-foreground animate-in fade-in duration-1000 delay-500">
-                ✨ No credit card required • Free trial available • Join 10,000+ learners
-              </p>
-            )}
+            {!session?.user &&
+            <p className="mt-6 text-sm text-muted-foreground animate-in fade-in duration-1000 delay-500 !whitespace-pre-line">
+
+            </p>
+            }
           </div>
         </div>
         
@@ -345,44 +345,44 @@ export default function Home() {
 
           <div className="grid gap-8 lg:grid-cols-3">
             {[
-              {
-                icon: BookOpen,
-                title: "Interactive Flashcards",
-                description: "AI-generated flashcards from any topic. Test yourself one at a time with immediate feedback and progress tracking.",
-                features: ["Customizable difficulty levels", "Spaced repetition algorithm", "Review missed questions"]
-              },
-              {
-                icon: Upload,
-                title: "Quiz from Your Materials",
-                description: "Upload PDFs, notes, or even handwritten content. Get targeted quizzes based on your actual study materials.",
-                features: ["PDF and image support", "Handwritten notes recognition", "Multiple choice or open-ended"]
-              },
-              {
-                icon: Clock,
-                title: "Last-Minute Exam Prep",
-                description: "Exam in 20 minutes? Get a rapid review of the most important concepts with high-yield topic prioritization.",
-                features: ["Prioritized concept review", "Fast-paced learning mode", "Critical topics first"]
-              },
-              {
-                icon: Brain,
-                title: "Cross-Session Memory",
-                description: "Your tutor remembers what you've learned and struggled with, creating personalized learning paths across all sessions.",
-                features: ["Tracks knowledge gaps", "Circles back to weak areas", "Works across devices"]
-              },
-              {
-                icon: Zap,
-                title: "Interview Preparation",
-                description: "Practice coding challenges and behavioral questions. Get real-time feedback and edge case testing.",
-                features: ["Algorithm problem solving", "STAR format coaching", "Mock interview scenarios"]
-              },
-              {
-                icon: MessageCircle,
-                title: "Multi-Subject Support",
-                description: "From Python programming to Italian grammar, math to cybersecurity—master any subject with adaptive teaching.",
-                features: ["STEM and humanities", "Language learning support", "Subject-specific analogies"]
-              }
-            ].map((feature, index) => (
-              <Card key={index} className="group relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 border-2 hover:border-primary/50">
+            {
+              icon: BookOpen,
+              title: "Interactive Flashcards",
+              description: "AI-generated flashcards from any topic. Test yourself one at a time with immediate feedback and progress tracking.",
+              features: ["Customizable difficulty levels", "Spaced repetition algorithm", "Review missed questions"]
+            },
+            {
+              icon: Upload,
+              title: "Quiz from Your Materials",
+              description: "Upload PDFs, notes, or even handwritten content. Get targeted quizzes based on your actual study materials.",
+              features: ["PDF and image support", "Handwritten notes recognition", "Multiple choice or open-ended"]
+            },
+            {
+              icon: Clock,
+              title: "Last-Minute Exam Prep",
+              description: "Exam in 20 minutes? Get a rapid review of the most important concepts with high-yield topic prioritization.",
+              features: ["Prioritized concept review", "Fast-paced learning mode", "Critical topics first"]
+            },
+            {
+              icon: Brain,
+              title: "Cross-Session Memory",
+              description: "Your tutor remembers what you've learned and struggled with, creating personalized learning paths across all sessions.",
+              features: ["Tracks knowledge gaps", "Circles back to weak areas", "Works across devices"]
+            },
+            {
+              icon: Zap,
+              title: "Interview Preparation",
+              description: "Practice coding challenges and behavioral questions. Get real-time feedback and edge case testing.",
+              features: ["Algorithm problem solving", "STAR format coaching", "Mock interview scenarios"]
+            },
+            {
+              icon: MessageCircle,
+              title: "Multi-Subject Support",
+              description: "From Python programming to Italian grammar, math to cybersecurity—master any subject with adaptive teaching.",
+              features: ["STEM and humanities", "Language learning support", "Subject-specific analogies"]
+            }].
+            map((feature, index) =>
+            <Card key={index} className="group relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 border-2 hover:border-primary/50">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 <CardContent className="relative pt-8">
                   <feature.icon className="mb-6 h-12 w-12 text-primary group-hover:scale-110 transition-transform" />
@@ -391,16 +391,16 @@ export default function Home() {
                     {feature.description}
                   </p>
                   <ul className="space-y-3">
-                    {feature.features.map((item, i) => (
-                      <li key={i} className="flex items-start gap-3 text-sm">
+                    {feature.features.map((item, i) =>
+                  <li key={i} className="flex items-start gap-3 text-sm">
                         <CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" />
                         <span className="text-muted-foreground">{item}</span>
                       </li>
-                    ))}
+                  )}
                   </ul>
                 </CardContent>
               </Card>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -598,37 +598,37 @@ export default function Home() {
               {session?.user ? `Keep Learning, ${userName}!` : "Ready to Transform Your Learning?"}
             </h2>
             <p className="mb-10 text-xl text-muted-foreground leading-relaxed">
-              {session?.user
-                ? "Jump back into your studies and continue mastering new concepts."
-                : "Join thousands of students who are learning smarter, not harder."}
+              {session?.user ?
+              "Jump back into your studies and continue mastering new concepts." :
+              "Join thousands of students who are learning smarter, not harder."}
             </p>
-            {session?.user ? (
-              <Link href="/chat">
+            {session?.user ?
+            <Link href="/chat">
                 <Button size="lg" className="text-lg px-8 py-6 shadow-xl hover:shadow-2xl transition-all hover:scale-105">
                   <MessageCircle className="mr-2 h-5 w-5" />
                   Continue Learning
                 </Button>
-              </Link>
-            ) : (
-              <form onSubmit={handleSubmit} className="mx-auto flex max-w-xl flex-col gap-4 sm:flex-row">
+              </Link> :
+
+            <form onSubmit={handleSubmit} className="mx-auto flex max-w-xl flex-col gap-4 sm:flex-row">
                 <Input
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 h-14 text-lg shadow-lg"
-                  required
-                />
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex-1 h-14 text-lg shadow-lg"
+                required />
+
                 <Button type="submit" size="lg" className="h-14 px-8 text-lg shadow-xl hover:shadow-2xl transition-all hover:scale-105">
                   Get Started
                 </Button>
               </form>
-            )}
-            {!session?.user && (
-              <p className="mt-6 text-sm text-muted-foreground">
+            }
+            {!session?.user &&
+            <p className="mt-6 text-sm text-muted-foreground">
                 ✨ Start your free trial today • No credit card required • Cancel anytime
               </p>
-            )}
+            }
           </div>
         </div>
       </section>
@@ -686,6 +686,6 @@ export default function Home() {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>);
+
 }
