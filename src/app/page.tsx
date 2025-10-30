@@ -172,14 +172,14 @@ export default function Home() {
                 <>
                   <TypingAnimation 
                     text="Ready to Learn," 
-                    speed={80}
+                    speed={40}
                     delay={500}
                   />
                   <span className="block mt-2 bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
                     <TypingAnimation 
                       text={`${userName}?`} 
-                      speed={80}
-                      delay={1500}
+                      speed={30}
+                      delay={500}
                     />
                   </span>
                 </>
