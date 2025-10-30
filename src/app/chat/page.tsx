@@ -49,6 +49,7 @@ export default function ChatPage() {
   const [renamingSessionId, setRenamingSessionId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
   const [isDragging, setIsDragging] = useState(false);
+  const [streamingMessageIndex, setStreamingMessageIndex] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -364,6 +365,7 @@ export default function ChatPage() {
     const newMessages = messages.slice(0, messageIndex);
     setMessages(newMessages);
     setIsLoading(true);
+    setStreamingMessageIndex(messageIndex);
 
     try {
       const response = await fetch("/api/chat", {
@@ -383,19 +385,48 @@ export default function ChatPage() {
         throw new Error("Failed to get response");
       }
 
-      const data = await response.json();
+      // Handle streaming response
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedText = "";
 
-      if (data.error) {
-        throw new Error(data.error);
+      if (!reader) {
+        throw new Error("No response body");
       }
 
-      setMessages([...newMessages, { role: "assistant", content: data.message }]);
+      // Add empty assistant message that will be filled progressively
+      setMessages([...newMessages, { role: "assistant", content: "" }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.text) {
+                accumulatedText += parsed.text;
+                setMessages([...newMessages, { role: "assistant", content: accumulatedText }]);
+              }
+            } catch (e) {
+              // Skip invalid JSON
+            }
+          }
+        }
+      }
     } catch (error) {
       console.error("Regenerate error:", error);
       toast.error("Failed to regenerate response");
       setMessages(messages); // Restore original messages
     } finally {
       setIsLoading(false);
+      setStreamingMessageIndex(null);
     }
   };
 
@@ -420,6 +451,7 @@ export default function ChatPage() {
     setEditingMessageIndex(null);
     setEditedContent("");
     setIsLoading(true);
+    setStreamingMessageIndex(updatedMessages.length + 1);
 
     try {
       const response = await fetch("/api/chat", {
@@ -439,18 +471,47 @@ export default function ChatPage() {
         throw new Error("Failed to get response");
       }
 
-      const data = await response.json();
+      // Handle streaming response
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedText = "";
 
-      if (data.error) {
-        throw new Error(data.error);
+      if (!reader) {
+        throw new Error("No response body");
       }
 
-      setMessages([...updatedMessages, editedMessage, { role: "assistant", content: data.message }]);
+      // Add empty assistant message that will be filled progressively
+      setMessages([...updatedMessages, editedMessage, { role: "assistant", content: "" }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.text) {
+                accumulatedText += parsed.text;
+                setMessages([...updatedMessages, editedMessage, { role: "assistant", content: accumulatedText }]);
+              }
+            } catch (e) {
+              // Skip invalid JSON
+            }
+          }
+        }
+      }
     } catch (error) {
       console.error("Edit and regenerate error:", error);
       toast.error("Failed to regenerate response");
     } finally {
       setIsLoading(false);
+      setStreamingMessageIndex(null);
     }
   };
 
@@ -604,6 +665,7 @@ export default function ChatPage() {
       { role: "user", content: userMessage, images: images.length > 0 ? images : undefined },
     ];
     setMessages(newMessages);
+    setStreamingMessageIndex(newMessages.length);
 
     try {
       const response = await fetch("/api/chat", {
@@ -623,19 +685,47 @@ export default function ChatPage() {
         throw new Error("Failed to get response");
       }
 
-      const data = await response.json();
+      // Handle streaming response
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedText = "";
 
-      if (data.error) {
-        throw new Error(data.error);
+      if (!reader) {
+        throw new Error("No response body");
       }
 
-      // Add AI response to chat
-      setMessages([...newMessages, { role: "assistant", content: data.message }]);
+      // Add empty assistant message that will be filled progressively
+      setMessages([...newMessages, { role: "assistant", content: "" }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.text) {
+                accumulatedText += parsed.text;
+                setMessages([...newMessages, { role: "assistant", content: accumulatedText }]);
+              }
+            } catch (e) {
+              // Skip invalid JSON
+            }
+          }
+        }
+      }
     } catch (error) {
       console.error("Chat error:", error);
       toast.error("Failed to get response from AI. Please try again.");
     } finally {
       setIsLoading(false);
+      setStreamingMessageIndex(null);
     }
   };
 

@@ -118,9 +118,9 @@ Always maintain this teaching approach across all subjects: programming, math, l
     // Use gemini-2.0-flash-exp for vision support and better performance
     const model = images && images.length > 0 ? "gemini-2.0-flash-exp" : "gemini-2.5-flash";
 
-    // Call Google Gemini API
+    // Call Google Gemini API with streaming
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${process.env.GOOGLE_GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${process.env.GOOGLE_GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: {
@@ -147,23 +147,60 @@ Always maintain this teaching approach across all subjects: programming, math, l
       );
     }
 
-    const data = await response.json();
-    const aiMessage = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    // Create a readable stream to pass through the response
+    const stream = new ReadableStream({
+      async start(controller) {
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
 
-    if (!aiMessage) {
-      return NextResponse.json(
-        { error: "No response from AI", data },
-        { status: 500 }
-      );
-    }
+        if (!reader) {
+          controller.close();
+          return;
+        }
 
-    return NextResponse.json({
-      message: aiMessage,
-      conversationHistory: [
-        ...history,
-        { role: "user", content: message },
-        { role: "assistant", content: aiMessage },
-      ],
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            
+            if (done) {
+              controller.close();
+              break;
+            }
+
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n');
+
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6);
+                if (data.trim() === '[DONE]') continue;
+                
+                try {
+                  const parsed = JSON.parse(data);
+                  const text = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
+                  
+                  if (text) {
+                    controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ text })}\n\n`));
+                  }
+                } catch (e) {
+                  // Skip invalid JSON
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Stream error:", error);
+          controller.error(error);
+        }
+      }
+    });
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
     });
   } catch (error) {
     console.error("Chat API Error:", error);
