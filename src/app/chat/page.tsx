@@ -6,7 +6,7 @@ import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Paperclip, Brain, ArrowRight, Sparkles, Loader2, ArrowDown, X, User, Menu, Plus, MessageSquare, Trash2, ChevronLeft, Search, Download, Star, Calendar, SortAsc, Copy, RefreshCw, Edit2, Check, AlertCircle } from "lucide-react";
+import { Paperclip, Brain, ArrowRight, Loader2, ArrowDown, X, User, Menu, Plus, MessageSquare, Trash2, ChevronLeft, Search, Download, Star, Calendar, SortAsc, Copy, RefreshCw, Edit2, Check } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
@@ -14,9 +14,6 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
-import { useCustomer } from "autumn-js/react";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 
 interface Message {
   role: "user" | "assistant";
@@ -33,7 +30,6 @@ interface ChatSession {
 
 export default function ChatPage() {
   const { data: session, isPending } = useSession();
-  const { customer, check, track, refetch, isLoading: customerLoading } = useCustomer();
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [currentTime, setCurrentTime] = useState("");
@@ -59,15 +55,6 @@ export default function ChatPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const renameInputRef = useRef<HTMLInputElement>(null);
-
-  // Get current plan and message usage
-  const currentPlan = customer?.products?.at(-1);
-  const planName = currentPlan?.name || "Free Plan";
-  const messagesFeature = customer?.features?.messages;
-  const messageUsage = messagesFeature?.usage || 0;
-  const messageLimit = messagesFeature?.included_usage;
-  const hasUnlimitedMessages = messagesFeature?.unlimited || false;
-  const usagePercentage = messageLimit ? Math.min(100, (messageUsage / messageLimit) * 100) : 0;
 
   // Load chat sessions and pinned chats from localStorage
   useEffect(() => {
@@ -605,21 +592,6 @@ export default function ChatPage() {
     e.preventDefault();
     if ((!message.trim() && attachedImages.length === 0) || isLoading) return;
 
-    // Feature gate: Check message allowance
-    if (!customerLoading) {
-      const { data: checkData } = await check({ featureId: "messages", requiredBalance: 1 });
-      if (!checkData?.allowed) {
-        toast.error("You've reached your message limit", {
-          description: "Upgrade to continue chatting with your AI tutor",
-          action: {
-            label: "Upgrade",
-            onClick: () => router.push("/pricing")
-          }
-        });
-        return;
-      }
-    }
-
     const userMessage = message.trim();
     const images = [...attachedImages];
     setMessage("");
@@ -659,16 +631,6 @@ export default function ChatPage() {
 
       // Add AI response to chat
       setMessages([...newMessages, { role: "assistant", content: data.message }]);
-      
-      // Track message usage after successful response
-      if (!customerLoading) {
-        await track({ 
-          featureId: "messages", 
-          value: 1, 
-          idempotencyKey: `message-${Date.now()}` 
-        });
-        await refetch(); // Refresh customer data to update usage
-      }
     } catch (error) {
       console.error("Chat error:", error);
       toast.error("Failed to get response from AI. Please try again.");
@@ -774,52 +736,6 @@ export default function ChatPage() {
               <ChevronLeft className="h-4 w-4" />
             </Button>
           </div>
-
-          {/* Usage Indicator */}
-          {!customerLoading && messagesFeature && (
-            <Card className="mb-4 bg-white/5 border-white/10">
-              <CardContent className="p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-medium text-gray-400">Messages</span>
-                  <Link href="/pricing">
-                    <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-primary/20">
-                      {planName}
-                    </Badge>
-                  </Link>
-                </div>
-                {hasUnlimitedMessages ? (
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="h-3 w-3 text-purple-400" />
-                    <span className="text-sm text-white font-medium">Unlimited</span>
-                  </div>
-                ) : (
-                  <>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-white font-mono">{messageUsage} / {messageLimit}</span>
-                      <span className="text-gray-400">{Math.round(usagePercentage)}%</span>
-                    </div>
-                    <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-2 rounded-full transition-all ${
-                          usagePercentage > 90 ? "bg-red-500" : 
-                          usagePercentage > 75 ? "bg-yellow-500" : "bg-purple-500"
-                        }`}
-                        style={{ width: `${usagePercentage}%` }}
-                      />
-                    </div>
-                    {usagePercentage > 80 && (
-                      <Link href="/pricing">
-                        <Button size="sm" className="w-full mt-2 bg-purple-500 hover:bg-purple-600 text-xs">
-                          <Sparkles className="h-3 w-3 mr-1" />
-                          Upgrade for More
-                        </Button>
-                      </Link>
-                    )}
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          )}
 
           {/* Search Bar */}
           <div className="mb-3 relative">
@@ -1153,11 +1069,6 @@ export default function ChatPage() {
                 Archive
               </Button>
             </Link>
-            <Link href="/pricing">
-              <Button variant="ghost" size="sm" className="rounded-full text-gray-400 hover:bg-white/10 hover:text-white">
-                Pricing
-              </Button>
-            </Link>
             <Link href="/settings">
               <Button variant="ghost" size="sm" className="rounded-full text-gray-400 hover:bg-white/10 hover:text-white">
                 Settings
@@ -1166,19 +1077,6 @@ export default function ChatPage() {
           </nav>
 
           <div className="flex items-center gap-1 sm:gap-2">
-            {!customerLoading && (
-              <Link href="/pricing">
-                <Badge variant="secondary" className="px-2 py-1 text-xs font-medium cursor-pointer hover:bg-primary/20 hidden sm:inline-flex">
-                  {planName}
-                </Badge>
-              </Link>
-            )}
-            <Link href="/pricing">
-              <Button size="sm" className="rounded-full bg-white text-black hover:bg-gray-200 h-8 sm:h-9 px-2 sm:px-4">
-                <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Upgrade</span>
-              </Button>
-            </Link>
             <Button
               size="icon"
               variant="ghost"
