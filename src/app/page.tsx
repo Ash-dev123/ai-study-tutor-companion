@@ -32,7 +32,7 @@ export default function Home() {
   const { data: session, isPending, refetch } = useSession();
   const { customer, isLoading: customerLoading } = useCustomer();
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("No credit card required | Free Trial Available");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -237,7 +237,7 @@ export default function Home() {
             </div>
             
             {!session?.user &&
-            <p className="mt-6 text-sm text-muted-foreground animate-in fade-in duration-1000 delay-500 !whitespace-pre-line">
+            <p className="mt-6 text-sm text-muted-foreground animate-in fade-in duration-1000 delay-500 !whitespace-pre-line !whitespace-pre-line">
 
             </p>
             }
