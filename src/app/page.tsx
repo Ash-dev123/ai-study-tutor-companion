@@ -258,7 +258,7 @@ export default function Home() {
               <Target className="mr-1.5 h-3 w-3" />
               Our Methodology
             </Badge>
-            <h2 className="mb-6 text-5xl font-bold lg:text-6xl bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">
+            <h2 className="mb-6 text-5xl font-bold lg:text-6xl">
               How It Works
             </h2>
             <p className="mx-auto max-w-3xl text-xl text-muted-foreground leading-relaxed">
