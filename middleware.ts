@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
 
 export const config = {
   matcher: ["/chat", "/archive", "/settings"],
@@ -8,7 +6,9 @@ export const config = {
 
 export async function middleware(request: NextRequest) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() });
+    // Call your API route instead of directly importing auth
+    const res = await fetch(`${request.nextUrl.origin}/api/session`);
+    const session = await res.json();
 
     if (!session?.user) {
       return NextResponse.redirect(new URL("/login", request.url));
