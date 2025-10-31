@@ -139,6 +139,13 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(0,0,0,0.05),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(0,0,0,0.03),transparent_50%)]" />
         
+        {/* Subtle Pulsing Light Orbs */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-[20%] left-[15%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] animate-pulse-slow" />
+          <div className="absolute top-[60%] right-[20%] w-[400px] h-[400px] bg-accent/5 rounded-full blur-[100px] animate-pulse-slower" />
+          <div className="absolute bottom-[30%] left-[40%] w-[350px] h-[350px] bg-primary/3 rounded-full blur-[90px] animate-pulse-slowest" />
+        </div>
+        
         <div className="container relative mx-auto px-4 py-24 lg:py-40">
           <div className="mx-auto max-w-5xl text-center">
             {session?.user ?

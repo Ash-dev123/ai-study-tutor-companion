@@ -1,3 +1,13 @@
+/* Updated: 2025-10-31T14:50:52.126Z */
+/* Updated: 2025-10-30T17:11:56.541Z */
+/* Updated: 2025-10-30T15:12:25.991Z */
+/* Updated: 2025-10-30T14:47:38.445Z */
+/* Updated: 2025-10-30T12:04:47.176Z */
+/* Updated: 2025-10-30T01:56:35.478Z */
+/* Updated: 2025-10-29T16:02:09.975Z */
+/* Updated: 2025-10-29T15:57:32.991Z */
+/* Updated: 2025-10-29T12:54:01.416Z */
+/* Updated: 2025-10-29T06:19:28.668Z */
 /* Updated: 2025-10-29T05:38:44.964Z */
 /* Updated: 2025-10-29T03:13:49.256Z */
 /* Updated: 2025-10-29T02:15:35.160Z */
@@ -127,6 +137,45 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  
+  @keyframes pulse-slow {
+    0%, 100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }
+  
+  @keyframes pulse-slower {
+    0%, 100% {
+      opacity: 0.2;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  
+  @keyframes pulse-slowest {
+    0%, 100% {
+      opacity: 0.15;
+    }
+    50% {
+      opacity: 0.4;
+    }
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse-slow 8s ease-in-out infinite;
+  }
+  
+  .animate-pulse-slower {
+    animation: pulse-slower 10s ease-in-out infinite;
+  }
+  
+  .animate-pulse-slowest {
+    animation: pulse-slowest 12s ease-in-out infinite;
   }
 }
 
