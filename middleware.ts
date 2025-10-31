@@ -6,8 +6,16 @@ export const config = {
 
 export async function middleware(request: NextRequest) {
   try {
-    // Call your API route instead of directly importing auth
-    const res = await fetch(`${request.nextUrl.origin}/api/session`);
+    const baseUrl =
+      process.env.NEXT_PUBLIC_VERCEL_URL
+        ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+        : request.nextUrl.origin;
+
+    const res = await fetch(`${baseUrl}/api/session`, {
+      headers: { cookie: request.headers.get("cookie") || "" },
+      cache: "no-store",
+    });
+
     const session = await res.json();
 
     if (!session?.user) {
@@ -15,8 +23,8 @@ export async function middleware(request: NextRequest) {
     }
 
     return NextResponse.next();
-  } catch (error) {
-    console.error("Middleware error:", error);
+  } catch (err) {
+    console.error("Middleware error:", err);
     return NextResponse.redirect(new URL("/login", request.url));
   }
 }
