@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { Brain, Loader2 } from "lucide-react";
 
-export default function LoginPage() {
+function LoginPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
@@ -36,7 +36,7 @@ export default function LoginPage() {
       email: formData.email,
       password: formData.password,
       rememberMe: formData.rememberMe,
-      callbackURL: "/chat"
+      callbackURL: "/chat",
     });
 
     setIsLoading(false);
@@ -54,9 +54,9 @@ export default function LoginPage() {
     setIsLoading(true);
     const { error } = await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/chat"
+      callbackURL: "/chat",
     });
-    
+
     if (error?.code) {
       toast.error("Google sign-in failed. Please try again.");
       setIsLoading(false);
@@ -179,5 +179,13 @@ export default function LoginPage() {
         </CardFooter>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginPageInner />
+    </Suspense>
   );
 }
