@@ -194,7 +194,7 @@ export default function Home() {
               }
             </h1>
             
-            <p className="mb-10 text-xl text-muted-foreground lg:text-2xl leading-relaxed animate-in fade-in slide-in-from-bottom-5 duration-1000 delay-150 lg:!text-slate-800 !font-normal !tracking-[-1px] !opacity-75 !block !mx-0 !p-0 !w-[692px] !h-[79px] !max-w-[692px]">
+            <p className="mb-10 text-xl text-muted-foreground lg:text-2xl leading-relaxed animate-in fade-in slide-in-from-bottom-5 duration-1000 delay-150 lg:!text-slate-800 !font-normal !tracking-[-1px] !opacity-75 !block !mx-0 !p-0 !w-[532px] !h-[79px] !max-w-[532px]">
               {session?.user ?
               "Your personal AI study tutor is ready to help you master any subject with the Socratic method." :
               "Your personal AI-powered study companion that guides you to truly understand concepts through interactive questioning, not just memorization."}
