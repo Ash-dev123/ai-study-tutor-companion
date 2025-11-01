@@ -1,3 +1,8 @@
+/* Updated: 2025-11-01T07:51:06.855Z */
+/* Updated: 2025-11-01T07:47:20.645Z */
+/* Updated: 2025-11-01T07:47:12.127Z */
+/* Updated: 2025-11-01T06:04:34.716Z */
+/* Updated: 2025-10-31T15:11:09.357Z */
 /* Updated: 2025-10-31T14:50:52.126Z */
 /* Updated: 2025-10-30T17:11:56.541Z */
 /* Updated: 2025-10-30T15:12:25.991Z */
@@ -166,6 +171,33 @@
     }
   }
   
+  @keyframes pulse-fast {
+    0%, 100% {
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes pulse-faster {
+    0%, 100% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 0.9;
+    }
+  }
+  
+  @keyframes pulse-fastest {
+    0%, 100% {
+      opacity: 0.4;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
+  
   .animate-pulse-slow {
     animation: pulse-slow 8s ease-in-out infinite;
   }
@@ -176,6 +208,18 @@
   
   .animate-pulse-slowest {
     animation: pulse-slowest 12s ease-in-out infinite;
+  }
+  
+  .animate-pulse-fast {
+    animation: pulse-fast 3s ease-in-out infinite;
+  }
+  
+  .animate-pulse-faster {
+    animation: pulse-faster 2.5s ease-in-out infinite;
+  }
+  
+  .animate-pulse-fastest {
+    animation: pulse-fastest 2s ease-in-out infinite;
   }
 }
 
