@@ -141,9 +141,9 @@ export default function Home() {
         
         {/* Subtle Pulsing Light Orbs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-[20%] left-[15%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] animate-pulse-slow" />
-          <div className="absolute top-[60%] right-[20%] w-[400px] h-[400px] bg-accent/5 rounded-full blur-[100px] animate-pulse-slower" />
-          <div className="absolute bottom-[30%] left-[40%] w-[350px] h-[350px] bg-primary/30 rounded-full blur-[90px] animate-pulse-slowest" />
+          <div className="absolute top-[20%] left-[15%] w-[500px] h-[500px] bg-indigo-500/70 rounded-full blur-[120px] animate-pulse-slow" />
+          <div className="absolute top-[60%] right-[20%] w-[400px] h-[400px] bg-cyan-400/70 rounded-full blur-[100px] animate-pulse-slower" />
+          <div className="absolute bottom-[30%] left-[40%] w-[350px] h-[350px] bg-blue-500/70 rounded-full blur-[90px] animate-pulse-slowest" />
         </div>
         
         <div className="container relative mx-auto px-4 py-24 lg:py-40">
