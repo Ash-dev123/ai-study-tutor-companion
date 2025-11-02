@@ -1,3 +1,4 @@
+/* Updated: 2025-11-02T12:40:37.850Z */
 /* Updated: 2025-11-01T07:51:06.855Z */
 /* Updated: 2025-11-01T07:47:20.645Z */
 /* Updated: 2025-11-01T07:47:12.127Z */
@@ -220,6 +221,63 @@
   
   .animate-pulse-fastest {
     animation: pulse-fastest 2s ease-in-out infinite;
+  }
+  
+  @keyframes aurora-1 {
+    0%, 100% {
+      transform: translateX(-10%) translateY(-10%) rotate(0deg);
+      opacity: 0.4;
+    }
+    33% {
+      transform: translateX(10%) translateY(5%) rotate(120deg);
+      opacity: 0.6;
+    }
+    66% {
+      transform: translateX(-5%) translateY(10%) rotate(240deg);
+      opacity: 0.5;
+    }
+  }
+  
+  @keyframes aurora-2 {
+    0%, 100% {
+      transform: translateX(10%) translateY(10%) rotate(0deg);
+      opacity: 0.3;
+    }
+    33% {
+      transform: translateX(-10%) translateY(-5%) rotate(120deg);
+      opacity: 0.5;
+    }
+    66% {
+      transform: translateX(5%) translateY(-10%) rotate(240deg);
+      opacity: 0.4;
+    }
+  }
+  
+  @keyframes aurora-3 {
+    0%, 100% {
+      transform: translateX(0%) translateY(-5%) rotate(0deg);
+      opacity: 0.35;
+    }
+    33% {
+      transform: translateX(-8%) translateY(8%) rotate(120deg);
+      opacity: 0.55;
+    }
+    66% {
+      transform: translateX(8%) translateY(-3%) rotate(240deg);
+      opacity: 0.45;
+    }
+  }
+  
+  .animate-aurora-1 {
+    animation: aurora-1 20s ease-in-out infinite;
+  }
+  
+  .animate-aurora-2 {
+    animation: aurora-2 25s ease-in-out infinite reverse;
+  }
+  
+  .animate-aurora-3 {
+    animation: aurora-3 30s ease-in-out infinite;
   }
 }
 

@@ -139,11 +139,18 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(0,0,0,0.05),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(0,0,0,0.03),transparent_50%)]" />
         
-        {/* Subtle Pulsing Light Orbs */}
+        {/* Aurora Lights Effect */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-60">
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 blur-3xl animate-aurora-1" />
+          <div className="absolute inset-0 bg-gradient-to-l from-emerald-500/20 via-teal-500/20 to-cyan-500/20 blur-3xl animate-aurora-2" />
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/20 via-purple-500/20 to-pink-500/20 blur-3xl animate-aurora-3" />
+        </div>
+        
+        {/* Pulsing Light Orbs - Repositioned */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-[20%] left-[15%] w-[500px] h-[500px] bg-cyan-700/70 rounded-full blur-[140px] animate-pulse-fast" />
-          <div className="absolute top-[60%] right-[20%] w-[400px] h-[400px] bg-blue-800/75 rounded-full blur-[120px] animate-pulse-faster" />
-          <div className="absolute bottom-[30%] left-[40%] w-[350px] h-[350px] bg-indigo-800/70 rounded-full blur-[100px] animate-pulse-fastest" />
+          <div className="absolute top-[10%] left-[5%] w-[500px] h-[500px] bg-cyan-700/70 rounded-full blur-[140px] animate-pulse-fast" />
+          <div className="absolute top-[15%] right-[8%] w-[400px] h-[400px] bg-blue-800/75 rounded-full blur-[120px] animate-pulse-faster" />
+          <div className="absolute bottom-[5%] left-[45%] w-[350px] h-[350px] bg-indigo-800/70 rounded-full blur-[100px] animate-pulse-fastest" />
         </div>
         
         <div className="container relative mx-auto px-4 py-24 lg:py-40">
@@ -194,7 +201,7 @@ export default function Home() {
               }
             </h1>
             
-            <p className="mb-10 text-xl text-muted-foreground lg:text-2xl leading-relaxed animate-in fade-in slide-in-from-bottom-5 duration-1000 delay-150 lg:!text-slate-800 !font-normal !tracking-[-1px] !opacity-75 !block !mx-0 !p-0 !w-[532px] !h-[79px] !max-w-[532px]">
+            <p className="mb-10 text-xl text-muted-foreground lg:text-2xl leading-relaxed animate-in fade-in slide-in-from-bottom-5 duration-1000 delay-150">
               {session?.user ?
               "Your personal AI study tutor is ready to help you master any subject with the Socratic method." :
               "Your personal AI-powered study companion that guides you to truly understand concepts through interactive questioning, not just memorization."}
