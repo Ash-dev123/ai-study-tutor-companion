@@ -202,15 +202,15 @@ export default function Home() {
               <>
                   <TypingAnimation
                   text="Learn Smarter with"
-                  speed={10}
+                  speed={5}
                   delay={100}
                   repeat={true} />
 
                   <span className="block mt-2">
                     <TypingAnimation
                     text="Socratic AI Tutoring"
-                    speed={10}
-                    delay={200}
+                    speed={5}
+                    delay={100}
                     repeat={true} />
 
                   </span>
