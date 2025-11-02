@@ -17,6 +17,7 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const supabase = createClient();
   const [isLoading, setIsLoading] = useState(false);
+  const [showResendConfirmation, setShowResendConfirmation] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -33,6 +34,31 @@ export default function LoginPage() {
     }
   }, [searchParams]);
 
+  const handleResendConfirmation = async () => {
+    if (!formData.email) {
+      toast.error("Please enter your email address");
+      return;
+    }
+
+    setIsLoading(true);
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: formData.email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      }
+    });
+    setIsLoading(false);
+
+    if (error) {
+      toast.error("Failed to resend confirmation email. Please try again or contact support if the issue persists.");
+      return;
+    }
+
+    toast.success("Confirmation email sent! Please check your inbox and spam folder.");
+    setShowResendConfirmation(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -47,12 +73,14 @@ export default function LoginPage() {
     if (error) {
       // Handle specific Supabase error cases
       if (error.message.includes("Email not confirmed")) {
-        toast.error("Please check your email and confirm your account before logging in. Check your spam folder if you don't see the email.");
+        setShowResendConfirmation(true);
+        toast.error("Please confirm your email before logging in. Click 'Resend Confirmation' below if you didn't receive the email.");
         return;
       }
       
       if (error.message.includes("Invalid login credentials")) {
-        toast.error("Invalid email or password. If you just signed up, please check your email to confirm your account first.");
+        setShowResendConfirmation(true);
+        toast.error("Invalid email or password. If you just signed up and haven't confirmed your email, click 'Resend Confirmation' below.");
         return;
       }
       
@@ -147,6 +175,34 @@ export default function LoginPage() {
               )}
             </Button>
           </form>
+
+          {showResendConfirmation && (
+            <div className="mt-4 p-3 border border-amber-500/20 rounded-lg bg-amber-500/5">
+              <div className="flex items-start gap-2 mb-2">
+                <AlertCircle className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-muted-foreground">
+                  Haven't received the confirmation email? Check your spam folder or click below to resend.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={handleResendConfirmation}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  "Resend Confirmation Email"
+                )}
+              </Button>
+            </div>
+          )}
 
           <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
