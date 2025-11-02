@@ -1,30 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
-
-export const config = {
-  matcher: ["/chat", "/archive", "/settings"],
-};
+import { NextRequest } from "next/server";
+import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
-  try {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_VERCEL_URL
-        ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-        : request.nextUrl.origin;
-
-    const res = await fetch(`${baseUrl}/api/session`, {
-      headers: { cookie: request.headers.get("cookie") || "" },
-      cache: "no-store",
-    });
-
-    const session = await res.json();
-
-    if (!session?.user) {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
-
-    return NextResponse.next();
-  } catch (err) {
-    console.error("Middleware error:", err);
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
+  return await updateSession(request);
 }
+
+export const config = {
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
+};

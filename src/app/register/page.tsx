@@ -6,13 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { authClient } from "@/lib/auth-client";
+import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import Link from "next/link";
 import { Brain, Loader2 } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const supabase = createClient();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -36,44 +37,41 @@ export default function RegisterPage() {
 
     setIsLoading(true);
 
-    const { error } = await authClient.signUp.email({
+    const { data, error } = await supabase.auth.signUp({
       email: formData.email,
-      name: formData.name,
       password: formData.password,
+      options: {
+        data: {
+          name: formData.name,
+        },
+      },
     });
 
     setIsLoading(false);
 
-    if (error?.code) {
-      const errorMap: Record<string, string> = {
-        USER_ALREADY_EXISTS: "Email already registered. Please login instead.",
-      };
-      toast.error(errorMap[error.code] || "Registration failed. Please try again.");
+    if (error) {
+      if (error.message.includes("already registered")) {
+        toast.error("Email already registered. Please login instead.");
+      } else {
+        toast.error(error.message || "Registration failed. Please try again.");
+      }
       return;
     }
 
     toast.success("Account created successfully! Redirecting to chat...");
-    
-    // Auto-login after registration
-    const { error: loginError } = await authClient.signIn.email({
-      email: formData.email,
-      password: formData.password,
-      callbackURL: "/chat"
-    });
-
-    if (!loginError) {
-      router.push("/chat");
-    }
+    router.push("/chat");
   };
 
   const handleGoogleSignUp = async () => {
     setIsLoading(true);
-    const { error } = await authClient.signIn.social({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      callbackURL: "/chat"
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
     
-    if (error?.code) {
+    if (error) {
       toast.error("Google sign-up failed. Please try again.");
       setIsLoading(false);
       return;
