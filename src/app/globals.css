@@ -223,61 +223,73 @@
     animation: pulse-fastest 2s ease-in-out infinite;
   }
   
-  @keyframes aurora-1 {
+  @keyframes orb-color-1 {
     0%, 100% {
-      transform: translateX(-10%) translateY(-10%) rotate(0deg);
-      opacity: 0.4;
+      background-color: rgba(6, 182, 212, 0);
+      opacity: 0;
     }
-    33% {
-      transform: translateX(10%) translateY(5%) rotate(120deg);
-      opacity: 0.6;
+    25% {
+      background-color: rgba(6, 182, 212, 0.7);
+      opacity: 1;
     }
-    66% {
-      transform: translateX(-5%) translateY(10%) rotate(240deg);
-      opacity: 0.5;
+    50% {
+      background-color: rgba(139, 92, 246, 0.7);
+      opacity: 1;
+    }
+    75% {
+      background-color: rgba(236, 72, 153, 0.7);
+      opacity: 1;
     }
   }
   
-  @keyframes aurora-2 {
+  @keyframes orb-color-2 {
     0%, 100% {
-      transform: translateX(10%) translateY(10%) rotate(0deg);
-      opacity: 0.3;
+      background-color: rgba(59, 130, 246, 0);
+      opacity: 0;
     }
-    33% {
-      transform: translateX(-10%) translateY(-5%) rotate(120deg);
-      opacity: 0.5;
+    25% {
+      background-color: rgba(59, 130, 246, 0.75);
+      opacity: 1;
     }
-    66% {
-      transform: translateX(5%) translateY(-10%) rotate(240deg);
-      opacity: 0.4;
+    50% {
+      background-color: rgba(168, 85, 247, 0.75);
+      opacity: 1;
+    }
+    75% {
+      background-color: rgba(6, 182, 212, 0.75);
+      opacity: 1;
     }
   }
   
-  @keyframes aurora-3 {
+  @keyframes orb-color-3 {
     0%, 100% {
-      transform: translateX(0%) translateY(-5%) rotate(0deg);
-      opacity: 0.35;
+      background-color: rgba(99, 102, 241, 0);
+      opacity: 0;
     }
-    33% {
-      transform: translateX(-8%) translateY(8%) rotate(120deg);
-      opacity: 0.55;
+    25% {
+      background-color: rgba(99, 102, 241, 0.7);
+      opacity: 1;
     }
-    66% {
-      transform: translateX(8%) translateY(-3%) rotate(240deg);
-      opacity: 0.45;
+    50% {
+      background-color: rgba(236, 72, 153, 0.7);
+      opacity: 1;
+    }
+    75% {
+      background-color: rgba(59, 130, 246, 0.7);
+      opacity: 1;
     }
   }
   
-  .animate-aurora-1 {
-    animation: aurora-1 20s ease-in-out infinite;
+  .animate-orb-color-1 {
+    animation: orb-color-1 8s ease-in-out infinite;
   }
   
-  .animate-aurora-2 {
-    animation: aurora-2 25s ease-in-out infinite reverse;
+  .animate-orb-color-2 {
+    animation: orb-color-2 10s ease-in-out infinite;
   }
   
-  .animate-aurora-3 {
-    animation: aurora-3 30s ease-in-out infinite;
+  .animate-orb-color-3 {
+    animation: orb-color-3 12s ease-in-out infinite;
   }
 }
 

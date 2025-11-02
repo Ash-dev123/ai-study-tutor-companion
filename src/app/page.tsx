@@ -53,104 +53,99 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation Header */}
-      <nav className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="relative">
-                <GraduationCap className="h-7 w-7 text-primary transition-transform group-hover:scale-110" />
-                <Sparkles className="absolute -right-1 -top-1 h-3 w-3 text-primary/60" />
-              </div>
-              <h1 className="text-2xl font-bold">StudySphere</h1>
-            </Link>
-            {session?.user &&
-            <div className="hidden md:flex items-center gap-1">
-                <Link href="/chat">
-                  <Button variant="ghost" size="sm" className="hover:bg-primary/5">
-                    Chat
-                  </Button>
-                </Link>
-                <Link href="/archive">
-                  <Button variant="ghost" size="sm" className="hover:bg-primary/5">
-                    Archive
-                  </Button>
-                </Link>
-                <Link href="/settings">
-                  <Button variant="ghost" size="sm" className="hover:bg-primary/5">
-                    Settings
-                  </Button>
-                </Link>
-              </div>
-            }
-          </div>
+      {/* Floating Navigation Header */}
+      <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl">
+        <div className="rounded-2xl border bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-lg px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-8">
+              <Link href="/" className="flex items-center gap-2 group">
+                <div className="relative">
+                  <GraduationCap className="h-7 w-7 text-primary transition-transform group-hover:scale-110" />
+                  <Sparkles className="absolute -right-1 -top-1 h-3 w-3 text-primary/60" />
+                </div>
+                <h1 className="text-2xl font-bold">StudySphere</h1>
+              </Link>
+              {session?.user &&
+              <div className="hidden md:flex items-center gap-1">
+                  <Link href="/chat">
+                    <Button variant="ghost" size="sm" className="hover:bg-primary/5">
+                      Chat
+                    </Button>
+                  </Link>
+                  <Link href="/archive">
+                    <Button variant="ghost" size="sm" className="hover:bg-primary/5">
+                      Archive
+                    </Button>
+                  </Link>
+                  <Link href="/settings">
+                    <Button variant="ghost" size="sm" className="hover:bg-primary/5">
+                      Settings
+                    </Button>
+                  </Link>
+                </div>
+              }
+            </div>
 
-          <div className="flex items-center gap-2">
-            {isPending ?
-            <div className="h-8 w-8 animate-pulse rounded-full bg-muted" /> :
-            session?.user ?
-            <>
-                <Link href="/chat">
-                  <Button size="sm" className="shadow-sm hover:shadow-md transition-shadow">
-                    <MessageCircle className="mr-2 h-4 w-4" />
-                    Go to Chat
-                  </Button>
-                </Link>
-                <Button
-                size="icon"
-                variant="outline"
-                className="rounded-full hover:bg-primary/5 transition-colors"
-                title={session.user.name || "User"}>
+            <div className="flex items-center gap-2">
+              {isPending ?
+              <div className="h-8 w-8 animate-pulse rounded-full bg-muted" /> :
+              session?.user ?
+              <>
+                  <Link href="/chat">
+                    <Button size="sm" className="shadow-sm hover:shadow-md transition-shadow">
+                      <MessageCircle className="mr-2 h-4 w-4" />
+                      Go to Chat
+                    </Button>
+                  </Link>
+                  <Button
+                  size="icon"
+                  variant="outline"
+                  className="rounded-full hover:bg-primary/5 transition-colors"
+                  title={session.user.name || "User"}>
 
-                  <User className="h-4 w-4" />
-                </Button>
-                <Button
-                size="icon"
-                variant="ghost"
-                onClick={handleSignOut}
-                title="Sign out"
-                className="hover:bg-destructive/10 hover:text-destructive transition-colors">
-
-                  <LogOut className="h-4 w-4" />
-                </Button>
-              </> :
-
-            <>
-                <Link href="/login">
-                  <Button variant="ghost" size="sm" className="hover:bg-primary/5">
-                    Log In
+                    <User className="h-4 w-4" />
                   </Button>
-                </Link>
-                <Link href="/register">
-                  <Button size="sm" className="shadow-sm hover:shadow-md transition-shadow">
-                    Get Started
+                  <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={handleSignOut}
+                  title="Sign out"
+                  className="hover:bg-destructive/10 hover:text-destructive transition-colors">
+
+                    <LogOut className="h-4 w-4" />
                   </Button>
-                </Link>
-              </>
-            }
+                </> :
+
+              <>
+                  <Link href="/login">
+                    <Button variant="ghost" size="sm" className="hover:bg-primary/5">
+                      Log In
+                    </Button>
+                  </Link>
+                  <Link href="/register">
+                    <Button size="sm" className="shadow-sm hover:shadow-md transition-shadow">
+                      Get Started
+                    </Button>
+                  </Link>
+                </>
+              }
+            </div>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden border-b">
+      <section className="relative overflow-hidden border-b pt-24">
         {/* Animated Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-accent/10" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(0,0,0,0.05),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(0,0,0,0.03),transparent_50%)]" />
         
-        {/* Aurora Lights Effect */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-60">
-          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 blur-3xl animate-aurora-1" />
-          <div className="absolute inset-0 bg-gradient-to-l from-emerald-500/20 via-teal-500/20 to-cyan-500/20 blur-3xl animate-aurora-2" />
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/20 via-purple-500/20 to-pink-500/20 blur-3xl animate-aurora-3" />
-        </div>
-        
-        {/* Pulsing Light Orbs - Repositioned */}
+        {/* Color-Changing Pulsing Light Orbs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-[10%] left-[5%] w-[500px] h-[500px] bg-cyan-700/70 rounded-full blur-[140px] animate-pulse-fast" />
-          <div className="absolute top-[15%] right-[8%] w-[400px] h-[400px] bg-blue-800/75 rounded-full blur-[120px] animate-pulse-faster" />
-          <div className="absolute bottom-[5%] left-[45%] w-[350px] h-[350px] bg-indigo-800/70 rounded-full blur-[100px] animate-pulse-fastest" />
+          <div className="absolute top-[10%] left-[5%] w-[500px] h-[500px] rounded-full blur-[140px] animate-orb-color-1" />
+          <div className="absolute top-[15%] right-[8%] w-[400px] h-[400px] rounded-full blur-[120px] animate-orb-color-2" />
+          <div className="absolute bottom-[5%] left-[45%] w-[350px] h-[350px] rounded-full blur-[100px] animate-orb-color-3" />
         </div>
         
         <div className="container relative mx-auto px-4 py-24 lg:py-40">
@@ -173,13 +168,15 @@ export default function Home() {
                   <TypingAnimation
                   text="Ready to Learn,"
                   speed={40}
-                  delay={500} />
+                  delay={500}
+                  repeat={true} />
 
                   <span className="block mt-2">
                     <TypingAnimation
                     text={`${userName}?`}
                     speed={10}
-                    delay={500} />
+                    delay={500}
+                    repeat={true} />
 
                   </span>
                 </> :
@@ -188,13 +185,15 @@ export default function Home() {
                   <TypingAnimation
                   text="Learn Smarter with"
                   speed={10}
-                  delay={100} />
+                  delay={100}
+                  repeat={true} />
 
                   <span className="block mt-2">
                     <TypingAnimation
                     text="Socratic AI Tutoring"
                     speed={10}
-                    delay={200} />
+                    delay={200}
+                    repeat={true} />
 
                   </span>
                 </>
@@ -235,12 +234,6 @@ export default function Home() {
                 </>
               }
             </div>
-            
-            {!session?.user &&
-            <p className="mt-6 text-sm text-muted-foreground animate-in fade-in duration-1000 delay-500 !whitespace-pre-line !whitespace-pre-line">
-
-            </p>
-            }
           </div>
         </div>
         
