@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession, authClient } from "@/lib/auth-client";
+import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles } from "lucide-react";
@@ -10,22 +10,40 @@ import Link from "next/link";
 import { toast } from "sonner";
 
 export default function SettingsPage() {
-  const { data: session, isPending, refetch } = useSession();
+  const supabase = createClient();
+  const [user, setUser] = useState<any>(null);
+  const [isPending, setIsPending] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    if (!isPending && !session?.user) {
-      router.push("/login");
-    }
-  }, [session, isPending, router]);
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        router.push("/login");
+      } else {
+        setUser(session.user);
+      }
+      setIsPending(false);
+    };
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+      if (!session?.user) {
+        router.push("/login");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [router, supabase]);
 
   const handleSignOut = async () => {
-    const { error } = await authClient.signOut();
-    if (error?.code) {
-      toast.error(error.code);
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error(error.message);
     } else {
-      localStorage.removeItem("bearer_token");
-      refetch();
+      setUser(null);
+      toast.success("Signed out successfully");
       router.push("/");
     }
   };
@@ -38,7 +56,7 @@ export default function SettingsPage() {
     );
   }
 
-  if (!session?.user) return null;
+  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -89,11 +107,11 @@ export default function SettingsPage() {
             <CardContent className="space-y-4">
               <div>
                 <p className="text-sm text-gray-400">Name</p>
-                <p className="text-white">{session.user.name}</p>
+                <p className="text-white">{user.user_metadata?.name || "N/A"}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-400">Email</p>
-                <p className="text-white">{session.user.email}</p>
+                <p className="text-white">{user.email}</p>
               </div>
             </CardContent>
           </Card>

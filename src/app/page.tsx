@@ -21,16 +21,35 @@ import {
   GraduationCap,
   Target } from
 "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useSession, authClient } from "@/lib/auth-client";
+import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 export default function Home() {
-  const { data: session, isPending, refetch } = useSession();
+  const supabase = createClient();
+  const [user, setUser] = useState<any>(null);
+  const [isPending, setIsPending] = useState(true);
   const router = useRouter();
   const [email, setEmail] = useState("No credit card required | Free Trial Available");
+
+  // Check authentication with Supabase
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+      setIsPending(false);
+    };
+    checkAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,17 +58,16 @@ export default function Home() {
   };
 
   const handleSignOut = async () => {
-    const { error } = await authClient.signOut();
-    if (error?.code) {
-      toast.error(error.code);
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error(error.message);
     } else {
-      localStorage.removeItem("bearer_token");
-      refetch();
+      setUser(null);
       toast.success("Signed out successfully");
     }
   };
 
-  const userName = session?.user?.name?.split(" ")[0] || "there";
+  const userName = user?.user_metadata?.name?.split(" ")[0] || user?.email?.split("@")[0] || "there";
 
   return (
     <div className="min-h-screen bg-background">
@@ -65,7 +83,7 @@ export default function Home() {
                 </div>
                 <h1 className="text-2xl font-bold">StudySphere</h1>
               </Link>
-              {session?.user &&
+              {user &&
               <div className="hidden md:flex items-center gap-1">
                   <Link href="/chat">
                     <Button variant="ghost" size="sm" className="hover:bg-primary/5">
@@ -89,7 +107,7 @@ export default function Home() {
             <div className="flex items-center gap-2">
               {isPending ?
               <div className="h-8 w-8 animate-pulse rounded-full bg-muted" /> :
-              session?.user ?
+              user ?
               <>
                   <Link href="/chat">
                     <Button size="sm" className="shadow-sm hover:shadow-md transition-shadow">
@@ -101,7 +119,7 @@ export default function Home() {
                   size="icon"
                   variant="outline"
                   className="rounded-full hover:bg-primary/5 transition-colors"
-                  title={session.user.name || "User"}>
+                  title={user.user_metadata?.name || user.email || "User"}>
 
                     <User className="h-4 w-4" />
                   </Button>
@@ -150,7 +168,7 @@ export default function Home() {
         
         <div className="container relative mx-auto px-4 py-24 lg:py-40">
           <div className="mx-auto max-w-5xl text-center">
-            {session?.user ?
+            {user ?
             <Badge className="mb-6 shadow-lg" variant="secondary">
                 <Sparkles className="mr-1.5 h-3 w-3" />
                 Welcome back, {userName}!
@@ -163,7 +181,7 @@ export default function Home() {
             }
             
             <h1 className="mb-8 text-6xl font-extrabold tracking-tight lg:text-8xl animate-in fade-in slide-in-from-bottom-4 duration-1000">
-              {session?.user ?
+              {user ?
               <>
                   <TypingAnimation
                   text="Ready to Learn,"
@@ -201,13 +219,13 @@ export default function Home() {
             </h1>
             
             <p className="mb-10 text-xl text-muted-foreground lg:text-2xl leading-relaxed animate-in fade-in slide-in-from-bottom-5 duration-1000 delay-150">
-              {session?.user ?
+              {user ?
               "Your personal AI study tutor is ready to help you master any subject with the Socratic method." :
               "Your personal AI-powered study companion that guides you to truly understand concepts through interactive questioning, not just memorization."}
             </p>
             
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-300">
-              {session?.user ?
+              {user ?
               <>
                   <Link href="/chat">
                     <Button size="lg" className="text-lg px-8 py-6 shadow-xl hover:shadow-2xl transition-all hover:scale-105">
@@ -588,14 +606,14 @@ export default function Home() {
           <div className="mx-auto max-w-4xl text-center">
             <Sparkles className="mx-auto mb-6 h-12 w-12 text-primary animate-pulse" />
             <h2 className="mb-6 text-5xl font-bold lg:text-6xl">
-              {session?.user ? `Keep Learning, ${userName}!` : "Ready to Transform Your Learning?"}
+              {user ? `Keep Learning, ${userName}!` : "Ready to Transform Your Learning?"}
             </h2>
             <p className="mb-10 text-xl text-muted-foreground leading-relaxed">
-              {session?.user ?
+              {user ?
               "Jump back into your studies and continue mastering new concepts." :
               "Join thousands of students who are learning smarter, not harder."}
             </p>
-            {session?.user ?
+            {user ?
             <Link href="/chat">
                 <Button size="lg" className="text-lg px-8 py-6 shadow-xl hover:shadow-2xl transition-all hover:scale-105">
                   <MessageCircle className="mr-2 h-5 w-5" />
@@ -617,7 +635,7 @@ export default function Home() {
                 </Button>
               </form>
             }
-            {!session?.user &&
+            {!user &&
             <p className="mt-6 text-sm text-muted-foreground">
                 ✨ Start your free trial today • No credit card required • Cancel anytime
               </p>
