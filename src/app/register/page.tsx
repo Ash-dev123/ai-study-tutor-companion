@@ -15,38 +15,12 @@ export default function RegisterPage() {
   const router = useRouter();
   const supabase = createClient();
   const [isLoading, setIsLoading] = useState(false);
-  const [showResendConfirmation, setShowResendConfirmation] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
-
-  const handleResendConfirmation = async () => {
-    if (!formData.email) {
-      toast.error("Please enter your email address");
-      return;
-    }
-
-    setIsLoading(true);
-    const { error } = await supabase.auth.resend({
-      type: 'signup',
-      email: formData.email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      }
-    });
-    setIsLoading(false);
-
-    if (error) {
-      toast.error("Failed to resend confirmation email. Please try again.");
-      return;
-    }
-
-    toast.success("Confirmation email sent! Please check your inbox and spam folder.");
-    setShowResendConfirmation(false);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,27 +51,18 @@ export default function RegisterPage() {
     setIsLoading(false);
 
     if (error) {
-      // Handle specific error cases
       if (error.message.includes("User already registered") || error.message.includes("already been registered")) {
-        setShowResendConfirmation(true);
-        toast.error("This email is already registered. If you haven't confirmed your email yet, click 'Resend Confirmation' below.");
+        toast.error("This email is already registered. Please try logging in instead.");
+        setTimeout(() => router.push("/login"), 2000);
         return;
       }
       toast.error(error.message || "Registration failed. Please try again.");
       return;
     }
 
-    // Check if email confirmation is required
-    const needsConfirmation = data.user && !data.session;
-    
-    if (needsConfirmation) {
-      toast.success("Account created! Please check your email to confirm your account before logging in.");
-      router.push("/login?registered=true&confirm=true");
-    } else {
-      // Auto-authenticated (email confirmation disabled)
-      toast.success("Account created successfully! Redirecting...");
-      router.push("/chat");
-    }
+    // With email confirmation disabled, user should be auto-authenticated
+    toast.success("Account created successfully! Redirecting...");
+    router.push("/chat");
   };
 
   const handleGoogleSignUp = async () => {
@@ -192,31 +157,6 @@ export default function RegisterPage() {
               )}
             </Button>
           </form>
-
-          {showResendConfirmation && (
-            <div className="mt-4 p-3 border border-primary/20 rounded-lg bg-primary/5">
-              <p className="text-sm text-muted-foreground mb-2">
-                Already have an account but haven't confirmed your email?
-              </p>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={handleResendConfirmation}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                    Sending...
-                  </>
-                ) : (
-                  "Resend Confirmation Email"
-                )}
-              </Button>
-            </div>
-          )}
 
           <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
