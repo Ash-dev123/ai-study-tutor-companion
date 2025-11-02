@@ -44,22 +44,33 @@ export default function RegisterPage() {
         data: {
           name: formData.name,
         },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 
     setIsLoading(false);
 
     if (error) {
-      if (error.message.includes("already registered")) {
-        toast.error("Email already registered. Please login instead.");
-      } else {
-        toast.error(error.message || "Registration failed. Please try again.");
+      // Handle specific error cases
+      if (error.message.includes("User already registered")) {
+        toast.error("This email is already registered. Please login instead or check your email for a confirmation link if you just signed up.");
+        return;
       }
+      toast.error(error.message || "Registration failed. Please try again.");
       return;
     }
 
-    toast.success("Account created successfully! Redirecting to chat...");
-    router.push("/chat");
+    // Check if email confirmation is required
+    const needsConfirmation = data.user && !data.session;
+    
+    if (needsConfirmation) {
+      toast.success("Account created! Please check your email to confirm your account before logging in.");
+      router.push("/login?registered=true&confirm=true");
+    } else {
+      // Auto-authenticated (email confirmation disabled)
+      toast.success("Account created successfully! Redirecting...");
+      router.push("/chat");
+    }
   };
 
   const handleGoogleSignUp = async () => {

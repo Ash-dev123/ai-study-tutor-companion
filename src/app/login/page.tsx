@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import Link from "next/link";
-import { Brain, Loader2 } from "lucide-react";
+import { Brain, Loader2, AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,7 +25,11 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (searchParams.get("registered") === "true") {
-      toast.success("Account created! Please sign in.");
+      if (searchParams.get("confirm") === "true") {
+        toast.info("Please check your email and confirm your account before logging in.");
+      } else {
+        toast.success("Account created! Please sign in.");
+      }
     }
   }, [searchParams]);
 
@@ -41,7 +45,19 @@ export default function LoginPage() {
     setIsLoading(false);
 
     if (error) {
-      toast.error("Invalid email or password. Please make sure you have already registered an account and try again.");
+      // Handle specific Supabase error cases
+      if (error.message.includes("Email not confirmed")) {
+        toast.error("Please check your email and confirm your account before logging in. Check your spam folder if you don't see the email.");
+        return;
+      }
+      
+      if (error.message.includes("Invalid login credentials")) {
+        toast.error("Invalid email or password. If you just signed up, please check your email to confirm your account first.");
+        return;
+      }
+      
+      // Generic error
+      toast.error(error.message || "Login failed. Please try again.");
       return;
     }
 
