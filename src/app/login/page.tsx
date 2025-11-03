@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { authClient } from "@/lib/auth-client";
+import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import Link from "next/link";
 import { Brain, Loader2 } from "lucide-react";
@@ -15,6 +15,7 @@ import { Brain, Loader2 } from "lucide-react";
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const supabase = createClient();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -32,16 +33,15 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    const { data, error } = await authClient.signIn.email({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: formData.email,
       password: formData.password,
-      rememberMe: formData.rememberMe,
     });
 
     setIsLoading(false);
 
-    if (error?.code) {
-      toast.error("Invalid email or password. Please make sure you have already registered an account and try again.");
+    if (error) {
+      toast.error("Invalid email or password. Please check your credentials and try again.");
       return;
     }
 
@@ -52,11 +52,14 @@ export default function LoginPage() {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    const { data, error } = await authClient.signIn.social({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
     
-    if (error?.code) {
+    if (error) {
       toast.error("Google sign-in failed. Please try again.");
       setIsLoading(false);
       return;
