@@ -10,7 +10,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import Link from "next/link";
-import { Brain, Loader2 } from "lucide-react";
+import { Brain, Loader2, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -27,6 +28,12 @@ export default function LoginPage() {
     if (searchParams.get("registered") === "true") {
       toast.success("Account created! Please sign in.");
     }
+    
+    if (searchParams.get("verification") === "pending") {
+      toast.info("Please check your email to verify your account before signing in.", {
+        duration: 8000,
+      });
+    }
   }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,7 +47,22 @@ export default function LoginPage() {
 
     if (error) {
       setIsLoading(false);
-      toast.error("Invalid email or password. Please check your credentials and try again.");
+      
+      // Handle specific error types
+      if (error.message.includes("Email not confirmed")) {
+        toast.error("Please verify your email address before signing in. Check your inbox for the confirmation link.", {
+          duration: 8000,
+        });
+        return;
+      }
+      
+      if (error.message.includes("Invalid login credentials")) {
+        toast.error("Invalid email or password. Please check your credentials and try again.");
+        return;
+      }
+      
+      // Generic error
+      toast.error(error.message || "Sign in failed. Please try again.");
       return;
     }
 
@@ -84,6 +106,15 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {searchParams.get("verification") === "pending" && (
+            <Alert className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Please check your email and click the verification link before signing in.
+              </AlertDescription>
+            </Alert>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>

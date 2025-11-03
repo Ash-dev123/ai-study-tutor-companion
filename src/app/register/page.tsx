@@ -44,12 +44,13 @@ export default function RegisterPage() {
         data: {
           name: formData.name,
         },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 
     if (error) {
       setIsLoading(false);
-      if (error.message.includes("already registered")) {
+      if (error.message.includes("already registered") || error.message.includes("User already registered")) {
         toast.error("This email is already registered. Please try logging in instead.");
         setTimeout(() => router.push("/login"), 2000);
         return;
@@ -58,13 +59,21 @@ export default function RegisterPage() {
       return;
     }
 
-    // Wait for session to be fully established
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    toast.success("Account created successfully! Redirecting...");
-    
-    // Force a hard navigation to ensure cookies are sent
-    window.location.href = "/chat";
+    setIsLoading(false);
+
+    // Check if email confirmation is required
+    if (data?.user && !data.session) {
+      // Email confirmation is required
+      toast.success("Account created! Please check your email to verify your account before signing in.", {
+        duration: 6000,
+      });
+      setTimeout(() => router.push("/login?verification=pending"), 2000);
+    } else if (data?.session) {
+      // Auto-confirmed (no email verification required)
+      toast.success("Account created successfully! Redirecting...");
+      await new Promise(resolve => setTimeout(resolve, 500));
+      window.location.href = "/chat";
+    }
   };
 
   const handleGoogleSignUp = async () => {
