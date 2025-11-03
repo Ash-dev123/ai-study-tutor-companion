@@ -1,23 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
-import { users } from '@/db/schema';
+import { user } from '@/db/schema';
 import { desc } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
     // Query all users from the database
-    const allUsers = await db.select().from(users).orderBy(desc(users.createdAt));
+    const allUsers = await db.select().from(user).orderBy(desc(user.createdAt));
 
     // Get total count
     const count = allUsers.length;
 
     // Get first 5 users
-    const userList = allUsers.slice(0, 5);
+    const users = allUsers.slice(0, 5);
 
     return NextResponse.json({
       success: true,
       count,
-      users: userList
+      users
     }, { status: 200 });
 
   } catch (error) {

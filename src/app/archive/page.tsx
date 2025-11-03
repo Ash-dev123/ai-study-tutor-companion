@@ -1,39 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export default function ArchivePage() {
-  const supabase = createClient();
-  const [user, setUser] = useState<any>(null);
-  const [isPending, setIsPending] = useState(true);
+  const { data: session, isPending } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        router.push("/login");
-      } else {
-        setUser(session.user);
-      }
-      setIsPending(false);
-    };
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-      if (!session?.user) {
-        router.push("/login");
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [router, supabase]);
+    if (!isPending && !session?.user) {
+      router.push("/login");
+    }
+  }, [session, isPending, router]);
 
   if (isPending) {
     return (
@@ -43,7 +25,7 @@ export default function ArchivePage() {
     );
   }
 
-  if (!user) return null;
+  if (!session?.user) return null;
 
   return (
     <div className="min-h-screen bg-black text-white">

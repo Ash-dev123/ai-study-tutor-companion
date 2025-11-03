@@ -1,8 +1,9 @@
+
 "use client";
 import React from "react";
 
 import { useCustomer, usePricingTable, ProductDetails } from "autumn-js/react";
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import { getPricingTableContent } from "@/lib/autumn/pricing-table-content";
 import type { Product, ProductItem } from "autumn-js";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { useSession } from "@/lib/auth-client";
 
 export default function PricingTable({
   productDetails,
@@ -22,24 +23,7 @@ export default function PricingTable({
   const [isAnnual, setIsAnnual] = useState(false);
   const { products, isLoading, error } = usePricingTable({ productDetails });
   const router = useRouter();
-  const supabase = createClient();
-  const [user, setUser] = useState<any>(null);
-  const [isPending, setIsPending] = useState(true);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
-      setIsPending(false);
-    };
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [supabase]);
+  const { data: session, isPending } = useSession();
 
   if (isLoading) {
     return (
@@ -97,7 +81,7 @@ export default function PricingTable({
 
                 onClick: async () => {
                   // Auth check per guidelines
-                  if (!user) {
+                  if (!session?.user) {
                     if (!isPending) {
                       router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
                     }

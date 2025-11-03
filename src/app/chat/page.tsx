@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -29,9 +29,7 @@ interface ChatSession {
 }
 
 export default function ChatPage() {
-  const supabase = createClient();
-  const [user, setUser] = useState<any>(null);
-  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+  const { data: session, isPending } = useSession();
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [currentTime, setCurrentTime] = useState("");
@@ -52,46 +50,12 @@ export default function ChatPage() {
   const [renameValue, setRenameValue] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [streamingMessageIndex, setStreamingMessageIndex] = useState<number | null>(null);
-  const [currentTimestamp, setCurrentTimestamp] = useState(Date.now());
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const renameInputRef = useRef<HTMLInputElement>(null);
-
-  // Check authentication with Supabase
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        router.push("/login");
-      } else {
-        setUser(session.user);
-      }
-      setIsLoadingAuth(false);
-    };
-    checkAuth();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-      if (!session?.user) {
-        router.push("/login");
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [router, supabase]);
-
-  // Update current timestamp every minute for relative time display
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTimestamp(Date.now());
-    }, 60000); // Update every minute
-
-    return () => clearInterval(interval);
-  }, []);
 
   // Load chat sessions and pinned chats from localStorage
   useEffect(() => {
@@ -146,6 +110,12 @@ export default function ChatPage() {
       );
     }
   }, [messages, currentSessionId]);
+
+  useEffect(() => {
+    if (!isPending && !session?.user) {
+      router.push("/login");
+    }
+  }, [session, isPending, router]);
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -564,7 +534,7 @@ export default function ChatPage() {
   const pinnedSessions = filteredAndSortedSessions.filter(s => pinnedChats.includes(s.id));
   const unpinnedSessions = filteredAndSortedSessions.filter(s => !pinnedChats.includes(s.id));
 
-  if (isLoadingAuth) {
+  if (isPending) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black">
         <div className="animate-pulse text-white">Loading...</div>
@@ -572,23 +542,9 @@ export default function ChatPage() {
     );
   }
 
-  if (!user) return null;
+  if (!session?.user) return null;
 
-  const userName = user.user_metadata?.name?.split(" ")[0] || user.email?.split("@")[0] || "there";
-
-  const formatTimestamp = (timestamp: number, now: number = Date.now()) => {
-    const date = new Date(timestamp);
-    const diffMs = now - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return date.toLocaleDateString();
-  };
+  const userName = session.user.name?.split(" ")[0] || "there";
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -780,6 +736,21 @@ export default function ChatPage() {
     }
   };
 
+  const formatTimestamp = (timestamp: number) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+  };
+
   // Custom code block component with copy button
   const CodeBlock = ({ children, className }: { children: string; className?: string }) => {
     const language = className?.replace("language-", "") || "text";
@@ -849,14 +820,10 @@ export default function ChatPage() {
             <Button
               size="icon"
               variant="ghost"
-              className="h-8 w-8 text-gray-400 hover:bg-white/10 hover:text-white lg:hidden"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setSidebarOpen(false);
-              }}
+              className="h-8 w-8 text-gray-400 hover:bg-white/10 hover:text-white"
+              onClick={() => setSidebarOpen(false)}
             >
-              <X className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4" />
             </Button>
           </div>
 
@@ -974,7 +941,7 @@ export default function ChatPage() {
                               <MessageSquare className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
                               <div className="flex-1 overflow-hidden">
                                 <p className="truncate text-sm text-white">{chatSession.title}</p>
-                                <p className="text-xs text-gray-500">{formatTimestamp(chatSession.timestamp, currentTimestamp)}</p>
+                                <p className="text-xs text-gray-500">{formatTimestamp(chatSession.timestamp)}</p>
                               </div>
                             </div>
                           </button>
@@ -1087,7 +1054,7 @@ export default function ChatPage() {
                               <MessageSquare className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
                               <div className="flex-1 overflow-hidden">
                                 <p className="truncate text-sm text-white">{chatSession.title}</p>
-                                <p className="text-xs text-gray-500">{formatTimestamp(chatSession.timestamp, currentTimestamp)}</p>
+                                <p className="text-xs text-gray-500">{formatTimestamp(chatSession.timestamp)}</p>
                               </div>
                             </div>
                           </button>

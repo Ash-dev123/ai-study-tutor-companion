@@ -6,14 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { createClient } from "@/lib/supabase/client";
+import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import Link from "next/link";
 import { Brain, Loader2 } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const supabase = createClient();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -37,55 +36,44 @@ export default function RegisterPage() {
 
     setIsLoading(true);
 
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await authClient.signUp.email({
       email: formData.email,
+      name: formData.name,
       password: formData.password,
-      options: {
-        data: {
-          name: formData.name,
-        },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
     });
-
-    if (error) {
-      setIsLoading(false);
-      if (error.message.includes("already registered") || error.message.includes("User already registered")) {
-        toast.error("This email is already registered. Please try logging in instead.");
-        setTimeout(() => router.push("/login"), 2000);
-        return;
-      }
-      toast.error(error.message || "Registration failed. Please try again.");
-      return;
-    }
 
     setIsLoading(false);
 
-    // Check if email confirmation is required
-    if (data?.user && !data.session) {
-      // Email confirmation is required
-      toast.success("Account created! Please check your email to verify your account before signing in.", {
-        duration: 6000,
-      });
-      setTimeout(() => router.push("/login?verification=pending"), 2000);
-    } else if (data?.session) {
-      // Auto-confirmed (no email verification required)
-      toast.success("Account created successfully! Redirecting...");
-      await new Promise(resolve => setTimeout(resolve, 500));
-      window.location.href = "/chat";
+    if (error?.code) {
+      const errorMap: Record<string, string> = {
+        USER_ALREADY_EXISTS: "Email already registered. Please login instead.",
+      };
+      toast.error(errorMap[error.code] || "Registration failed. Please try again.");
+      return;
+    }
+
+    toast.success("Account created successfully! Redirecting to chat...");
+    
+    // Auto-login after registration
+    const { error: loginError } = await authClient.signIn.email({
+      email: formData.email,
+      password: formData.password,
+      callbackURL: "/chat"
+    });
+
+    if (!loginError) {
+      router.push("/chat");
     }
   };
 
   const handleGoogleSignUp = async () => {
     setIsLoading(true);
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { error } = await authClient.signIn.social({
       provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
+      callbackURL: "/chat"
     });
     
-    if (error) {
+    if (error?.code) {
       toast.error("Google sign-up failed. Please try again.");
       setIsLoading(false);
       return;

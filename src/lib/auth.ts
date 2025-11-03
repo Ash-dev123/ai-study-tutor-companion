@@ -1,26 +1,36 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { bearer } from "better-auth/plugins";
+import { NextRequest } from 'next/server';
+import { headers } from "next/headers"
 import { db } from "@/db";
-import * as schema from "@/db/schema";
-
+ 
 export const auth = betterAuth({
-  database: drizzleAdapter(db, {
-    provider: "pg",
-    schema: {
-      user: schema.user,
-      session: schema.session,
-      account: schema.account,
-      verification: schema.verification,
-    },
-  }),
-  emailAndPassword: {
-    enabled: true,
-    requireEmailVerification: false,
-  },
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-    },
-  },
+	database: drizzleAdapter(db, {
+		provider: "pg",
+	}),
+	emailAndPassword: {    
+		enabled: true
+	},
+	session: {
+		expiresIn: 60 * 60 * 24 * 7, // 7 days (default)
+		updateAge: 60 * 60 * 24, // 1 day (update session every day)
+		cookieCache: {
+			enabled: true,
+			maxAge: 60 * 60 * 24 * 365 // 1 year for remember me
+		}
+	},
+	socialProviders: {
+		google: {
+			clientId: process.env.GOOGLE_CLIENT_ID || "",
+			clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+		},
+	},
+	plugins: [bearer()]
 });
+
+// Session validation helper
+export async function getCurrentUser(request: NextRequest) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  return session?.user || null;
+}

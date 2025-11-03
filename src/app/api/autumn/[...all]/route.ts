@@ -1,19 +1,18 @@
-import { autumnHandler } from "autumn-js/next";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
 
+import { autumnHandler } from "autumn-js/next";
+import { auth } from "@/lib/auth";
 export const { GET, POST } = autumnHandler({
   identify: async (request) => {
-    const supabase = await createServerSupabaseClient();
-    const { data: { session } } = await supabase.auth.getSession();
-    
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    });
     if (!session?.user) {
       return null;
     }
-    
     return {
       customerId: session.user.id,
       customerData: {
-        name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+        name: session.user.name,
         email: session.user.email,
       },
     };

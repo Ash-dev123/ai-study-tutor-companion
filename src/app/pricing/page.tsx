@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useSession, authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,32 +10,16 @@ import { toast } from "sonner";
 import { PricingTable } from "@/components/autumn/pricing-table";
 
 export default function PricingPage() {
-  const supabase = createClient();
-  const [user, setUser] = useState<any>(null);
-  const [isPending, setIsPending] = useState(true);
+  const { data: session, isPending, refetch } = useSession();
   const router = useRouter();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user || null);
-      setIsPending(false);
-    };
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [supabase]);
-
   const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast.error(error.message);
+    const { error } = await authClient.signOut();
+    if (error?.code) {
+      toast.error(error.code);
     } else {
-      setUser(null);
+      localStorage.removeItem("bearer_token");
+      refetch();
       toast.success("Signed out successfully");
     }
   };
@@ -135,7 +118,7 @@ export default function PricingPage() {
             <Link href="/" className="flex items-center gap-2">
               <h1 className="text-2xl font-bold">StudySphere</h1>
             </Link>
-            {user && (
+            {session?.user && (
               <div className="hidden md:flex items-center gap-4">
                 <Link href="/chat">
                   <Button variant="ghost" size="sm">
@@ -164,13 +147,13 @@ export default function PricingPage() {
           <div className="flex items-center gap-2">
             {isPending ? (
               <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
-            ) : user ? (
+            ) : session?.user ? (
               <>
                 <Button
                   size="icon"
                   variant="outline"
                   className="rounded-full"
-                  title={user.user_metadata?.name || user.email || "User"}
+                  title={session.user.name || "User"}
                 >
                   <User className="h-4 w-4" />
                 </Button>
