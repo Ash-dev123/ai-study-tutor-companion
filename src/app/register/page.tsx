@@ -47,9 +47,8 @@ export default function RegisterPage() {
       },
     });
 
-    setIsLoading(false);
-
     if (error) {
+      setIsLoading(false);
       if (error.message.includes("already registered")) {
         toast.error("This email is already registered. Please try logging in instead.");
         setTimeout(() => router.push("/login"), 2000);
@@ -59,8 +58,13 @@ export default function RegisterPage() {
       return;
     }
 
+    // Wait for session to be fully established
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
     toast.success("Account created successfully! Redirecting...");
-    router.push("/chat");
+    
+    // Force a hard navigation to ensure cookies are sent
+    window.location.href = "/chat";
   };
 
   const handleGoogleSignUp = async () => {

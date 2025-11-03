@@ -38,16 +38,20 @@ export default function LoginPage() {
       password: formData.password,
     });
 
-    setIsLoading(false);
-
     if (error) {
+      setIsLoading(false);
       toast.error("Invalid email or password. Please check your credentials and try again.");
       return;
     }
 
+    // Wait for session to be fully established
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
     toast.success("Logged in successfully!");
     const redirect = searchParams.get("redirect") || "/chat";
-    router.push(redirect);
+    
+    // Force a hard navigation to ensure cookies are sent
+    window.location.href = redirect;
   };
 
   const handleGoogleSignIn = async () => {
