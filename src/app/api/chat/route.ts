@@ -73,6 +73,18 @@ export async function POST(request: NextRequest) {
 - Use bullet points and numbered lists for clarity
 - Use headings (##, ###) to organize longer explanations
 
+**IMPORTANT - MULTIPLE CHOICE QUESTIONS:**
+- When asking questions, provide multiple choice options in this exact format:
+[MCQ]
+A) Option 1
+B) Option 2
+C) Option 3
+D) Option 4
+[/MCQ]
+- Always include 3-4 options when asking questions
+- Make options clear and distinct
+- Include one correct answer and plausible distractors
+
 ${deepThinking ? "\n**DEEP THINKING MODE ENABLED:**\n- Show your reasoning process step-by-step\n- Explain your thought process before giving guidance\n- Break down complex problems into smaller logical steps\n- Verbalize internal reasoning: 'Let me think about this...', 'First, I notice...', 'This makes me consider...'\n- Show multiple approaches when applicable" : ""}
 
 Always maintain this teaching approach across all subjects: programming, math, languages, science, interview prep, etc.`;

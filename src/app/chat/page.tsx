@@ -515,6 +515,307 @@ export default function ChatPage() {
     }
   };
 
+  const handleMCQSelection = async (option: string) => {
+    if (isLoading) return;
+
+    setIsLoading(true);
+    const userMessage = option;
+
+    // Add user message to chat
+    const newMessages: Message[] = [
+      ...messages,
+      { role: "user", content: userMessage },
+    ];
+    setMessages(newMessages);
+    setStreamingMessageIndex(newMessages.length);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          conversationHistory: messages,
+          deepThinking,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to get response");
+      }
+
+      // Handle streaming response
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedText = "";
+
+      if (!reader) {
+        throw new Error("No response body");
+      }
+
+      // Add empty assistant message that will be filled progressively
+      setMessages([...newMessages, { role: "assistant", content: "" }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.text) {
+                accumulatedText += parsed.text;
+                setMessages([...newMessages, { role: "assistant", content: accumulatedText }]);
+              }
+            } catch (e) {
+              // Skip invalid JSON
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Chat error:", error);
+      toast.error("Failed to get response from AI. Please try again.");
+    } finally {
+      setIsLoading(false);
+      setStreamingMessageIndex(null);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if ((!message.trim() && attachedImages.length === 0) || isLoading) return;
+
+    const userMessage = message.trim();
+    const images = [...attachedImages];
+    setMessage("");
+    setAttachedImages([]);
+    setIsLoading(true);
+
+    // Add user message to chat
+    const newMessages: Message[] = [
+      ...messages,
+      { role: "user", content: userMessage, images: images.length > 0 ? images : undefined },
+    ];
+    setMessages(newMessages);
+    setStreamingMessageIndex(newMessages.length);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          conversationHistory: messages,
+          deepThinking,
+          images: images.length > 0 ? images : undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to get response");
+      }
+
+      // Handle streaming response
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedText = "";
+
+      if (!reader) {
+        throw new Error("No response body");
+      }
+
+      // Add empty assistant message that will be filled progressively
+      setMessages([...newMessages, { role: "assistant", content: "" }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.text) {
+                accumulatedText += parsed.text;
+                setMessages([...newMessages, { role: "assistant", content: accumulatedText }]);
+              }
+            } catch (e) {
+              // Skip invalid JSON
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Chat error:", error);
+      toast.error("Failed to get response from AI. Please try again.");
+    } finally {
+      setIsLoading(false);
+      setStreamingMessageIndex(null);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
+  };
+
+  const formatTimestamp = (timestamp: number) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+  };
+
+  // Custom code block component with copy button
+  const CodeBlock = ({ children, className }: { children: string; className?: string }) => {
+    const language = className?.replace("language-", "") || "text";
+    
+    return (
+      <div className="relative group">
+        <Button
+          size="sm"
+          variant="ghost"
+          className="absolute right-2 top-2 h-7 px-2 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-white/20"
+          onClick={() => copyMessageContent(children)}
+        >
+          <Copy className="h-3 w-3 mr-1" />
+          Copy
+        </Button>
+        <pre className="bg-black/50 rounded-lg p-4 overflow-x-auto">
+          <code className={className}>{children}</code>
+        </pre>
+      </div>
+    );
+  };
+
+  // Custom markdown components
+  const MarkdownComponents = {
+    code: ({ node, inline, className, children, ...props }: any) => {
+      const match = /language-(\w+)/.exec(className || '');
+      const codeString = String(children).replace(/\n$/, '');
+      
+      if (!inline && match) {
+        return <CodeBlock className={className}>{codeString}</CodeBlock>;
+      }
+      
+      return <code className={className} {...props}>{children}</code>;
+    }
+  };
+
+  // Parse MCQ from content
+  const parseMCQ = (content: string) => {
+    const mcqRegex = /\[MCQ\]([\s\S]*?)\[\/MCQ\]/;
+    const match = content.match(mcqRegex);
+    
+    if (!match) return null;
+    
+    const mcqContent = match[1].trim();
+    const options = mcqContent.split('\n').filter(line => line.trim());
+    
+    return {
+      fullMatch: match[0],
+      options: options.map(opt => opt.trim())
+    };
+  };
+
+  // Render message content with MCQ support
+  const renderMessageContent = (msg: Message, idx: number) => {
+    const mcq = parseMCQ(msg.content);
+    
+    if (mcq && msg.role === "assistant") {
+      // Split content into before MCQ, MCQ, and after MCQ
+      const parts = msg.content.split(mcq.fullMatch);
+      const beforeMCQ = parts[0];
+      const afterMCQ = parts[1] || "";
+      
+      return (
+        <div className="space-y-4">
+          {beforeMCQ && (
+            <div className="prose prose-invert max-w-none prose-p:my-2 prose-p:leading-relaxed prose-pre:bg-black/50 prose-pre:p-4 prose-code:text-purple-300 text-sm sm:text-base">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm, remarkMath]}
+                rehypePlugins={[rehypeKatex]}
+                components={MarkdownComponents}
+              >
+                {beforeMCQ}
+              </ReactMarkdown>
+            </div>
+          )}
+          
+          {/* MCQ Options */}
+          <div className="space-y-2">
+            {mcq.options.map((option, i) => (
+              <Button
+                key={i}
+                variant="outline"
+                className="w-full justify-start text-left h-auto py-3 px-4 bg-white/5 border-white/20 hover:bg-purple-500/20 hover:border-purple-400 text-white text-sm sm:text-base"
+                onClick={() => handleMCQSelection(option)}
+                disabled={isLoading || idx !== messages.length - 1}
+              >
+                {option}
+              </Button>
+            ))}
+          </div>
+          
+          {afterMCQ && (
+            <div className="prose prose-invert max-w-none prose-p:my-2 prose-p:leading-relaxed prose-pre:bg-black/50 prose-pre:p-4 prose-code:text-purple-300 text-sm sm:text-base">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm, remarkMath]}
+                rehypePlugins={[rehypeKatex]}
+                components={MarkdownComponents}
+              >
+                {afterMCQ}
+              </ReactMarkdown>
+            </div>
+          )}
+        </div>
+      );
+    }
+    
+    // Regular message rendering
+    if (msg.role === "assistant") {
+      return (
+        <div className="prose prose-invert max-w-none prose-p:my-2 prose-p:leading-relaxed prose-pre:bg-black/50 prose-pre:p-4 prose-code:text-purple-300 text-sm sm:text-base">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm, remarkMath]}
+            rehypePlugins={[rehypeKatex]}
+            components={MarkdownComponents}
+          >
+            {msg.content}
+          </ReactMarkdown>
+        </div>
+      );
+    }
+    
+    return <p className="whitespace-pre-wrap text-sm sm:text-base">{msg.content}</p>;
+  };
+
   const filteredAndSortedSessions = chatSessions
     .filter(session => 
       session.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -647,130 +948,6 @@ export default function ChatPage() {
     if (imageFiles.length > 0) {
       toast.success(`${imageFiles.length} image(s) added`);
     }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if ((!message.trim() && attachedImages.length === 0) || isLoading) return;
-
-    const userMessage = message.trim();
-    const images = [...attachedImages];
-    setMessage("");
-    setAttachedImages([]);
-    setIsLoading(true);
-
-    // Add user message to chat
-    const newMessages: Message[] = [
-      ...messages,
-      { role: "user", content: userMessage, images: images.length > 0 ? images : undefined },
-    ];
-    setMessages(newMessages);
-    setStreamingMessageIndex(newMessages.length);
-
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: userMessage,
-          conversationHistory: messages,
-          deepThinking,
-          images: images.length > 0 ? images : undefined,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to get response");
-      }
-
-      // Handle streaming response
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      let accumulatedText = "";
-
-      if (!reader) {
-        throw new Error("No response body");
-      }
-
-      // Add empty assistant message that will be filled progressively
-      setMessages([...newMessages, { role: "assistant", content: "" }]);
-
-      while (true) {
-        const { done, value } = await reader.read();
-        
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            try {
-              const parsed = JSON.parse(data);
-              if (parsed.text) {
-                accumulatedText += parsed.text;
-                setMessages([...newMessages, { role: "assistant", content: accumulatedText }]);
-              }
-            } catch (e) {
-              // Skip invalid JSON
-            }
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Chat error:", error);
-      toast.error("Failed to get response from AI. Please try again.");
-    } finally {
-      setIsLoading(false);
-      setStreamingMessageIndex(null);
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit(e);
-    }
-  };
-
-  const formatTimestamp = (timestamp: number) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return date.toLocaleDateString();
-  };
-
-  // Custom code block component with copy button
-  const CodeBlock = ({ children, className }: { children: string; className?: string }) => {
-    const language = className?.replace("language-", "") || "text";
-    
-    return (
-      <div className="relative group">
-        <Button
-          size="sm"
-          variant="ghost"
-          className="absolute right-2 top-2 h-7 px-2 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-white/20"
-          onClick={() => copyMessageContent(children)}
-        >
-          <Copy className="h-3 w-3 mr-1" />
-          Copy
-        </Button>
-        <pre className="bg-black/50 rounded-lg p-4 overflow-x-auto">
-          <code className={className}>{children}</code>
-        </pre>
-      </div>
-    );
   };
 
   return (
@@ -1254,30 +1431,7 @@ export default function ChatPage() {
                               ))}
                             </div>
                           )}
-                          {msg.role === "assistant" ? (
-                            <div className="prose prose-invert max-w-none prose-p:my-2 prose-p:leading-relaxed prose-pre:bg-black/50 prose-pre:p-4 prose-code:text-purple-300 text-sm sm:text-base">
-                              <ReactMarkdown
-                                remarkPlugins={[remarkGfm, remarkMath]}
-                                rehypePlugins={[rehypeKatex]}
-                                components={{
-                                  code: ({ node, inline, className, children, ...props }: any) => {
-                                    const match = /language-(\w+)/.exec(className || '');
-                                    const codeString = String(children).replace(/\n$/, '');
-                                    
-                                    if (!inline && match) {
-                                      return <CodeBlock className={className}>{codeString}</CodeBlock>;
-                                    }
-                                    
-                                    return <code className={className} {...props}>{children}</code>;
-                                  }
-                                }}
-                              >
-                                {msg.content}
-                              </ReactMarkdown>
-                            </div>
-                          ) : (
-                            <p className="whitespace-pre-wrap text-sm sm:text-base">{msg.content}</p>
-                          )}
+                          {renderMessageContent(msg, idx)}
                           
                           {/* Message action buttons */}
                           <div className="absolute -bottom-8 right-0 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
