@@ -49,6 +49,13 @@ export default function Home() {
     }
   };
 
+  const handleGuestContinue = () => {
+    // Set guest mode flag
+    localStorage.setItem("guest_mode", "true");
+    router.push("/chat");
+    toast.success("Welcome! You're using guest mode");
+  };
+
   const userName = session?.user?.name?.split(" ")[0] || "there";
 
   return (
@@ -228,12 +235,24 @@ export default function Home() {
                       Get Started Free <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
                   </Link>
-                  <Button size="lg" variant="outline" className="text-lg px-8 py-6 shadow-lg hover:shadow-xl transition-all hover:scale-105">
-                    Watch Demo
+                  <Button 
+                    size="lg" 
+                    variant="outline" 
+                    className="text-lg px-8 py-6 shadow-lg hover:shadow-xl transition-all hover:scale-105"
+                    onClick={handleGuestContinue}
+                  >
+                    <User className="mr-2 h-5 w-5" />
+                    Continue as Guest
                   </Button>
                 </>
               }
             </div>
+            
+            {!session?.user && (
+              <p className="mt-6 text-sm text-muted-foreground">
+                Try it now without signing up • Full access as guest
+              </p>
+            )}
           </div>
         </div>
         
