@@ -102,11 +102,16 @@ export default function ChatPage() {
   useEffect(() => {
     if (currentSessionId && messages.length > 0) {
       setChatSessions(prev => 
-        prev.map(s => 
-          s.id === currentSessionId 
-            ? { ...s, messages, title: generateTitle(messages), timestamp: Date.now() }
-            : s
-        )
+        prev.map(s => {
+          if (s.id === currentSessionId) {
+            const newTitle = generateTitle(messages);
+            // Only update if title actually changed or messages changed
+            if (s.title !== newTitle || s.messages.length !== messages.length) {
+              return { ...s, messages, title: newTitle, timestamp: Date.now() };
+            }
+          }
+          return s;
+        })
       );
     }
   }, [messages, currentSessionId]);
@@ -195,21 +200,36 @@ export default function ChatPage() {
 
       // Arrow keys to navigate chat history (only when not typing)
       if (!isTyping && sidebarOpen) {
-        const currentIndex = filteredAndSortedSessions.findIndex(s => s.id === currentSessionId);
+        const filtered = chatSessions
+          .filter(session => 
+            session.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            session.messages.some(msg => msg.content.toLowerCase().includes(searchQuery.toLowerCase()))
+          )
+          .sort((a, b) => {
+            if (sortBy === "recent") {
+              return b.timestamp - a.timestamp;
+            } else if (sortBy === "oldest") {
+              return a.timestamp - b.timestamp;
+            } else {
+              return a.title.localeCompare(b.title);
+            }
+          });
+        
+        const currentIndex = filtered.findIndex(s => s.id === currentSessionId);
         
         if (e.key === "ArrowUp" && currentIndex > 0) {
           e.preventDefault();
-          handleSelectSession(filteredAndSortedSessions[currentIndex - 1].id);
-        } else if (e.key === "ArrowDown" && currentIndex < filteredAndSortedSessions.length - 1) {
+          handleSelectSession(filtered[currentIndex - 1].id);
+        } else if (e.key === "ArrowDown" && currentIndex < filtered.length - 1) {
           e.preventDefault();
-          handleSelectSession(filteredAndSortedSessions[currentIndex + 1].id);
+          handleSelectSession(filtered[currentIndex + 1].id);
         }
       }
     };
 
     window.addEventListener("keydown", handleKeyboardShortcut);
     return () => window.removeEventListener("keydown", handleKeyboardShortcut);
-  }, [sidebarOpen, searchQuery, currentSessionId, chatSessions]);
+  }, [sidebarOpen, searchQuery, currentSessionId, chatSessions, sortBy]);
 
   // Focus rename input when renaming starts
   useEffect(() => {
@@ -236,7 +256,10 @@ export default function ChatPage() {
     if (msgs.length === 0) return "New Chat";
     const firstUserMsg = msgs.find(m => m.role === "user");
     if (!firstUserMsg) return "New Chat";
-    return firstUserMsg.content.slice(0, 30) + (firstUserMsg.content.length > 30 ? "..." : "");
+    // Get first line or first 40 characters, whichever is shorter
+    const firstLine = firstUserMsg.content.split('\n')[0];
+    const truncated = firstLine.slice(0, 40);
+    return truncated + (firstLine.length > 40 ? "..." : "");
   };
 
   const handleNewChat = () => {
@@ -246,6 +269,10 @@ export default function ChatPage() {
     setMessages([]);
     setMessage("");
     setAttachedImages([]);
+    // Close sidebar on mobile after creating new chat
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
   };
 
   const handleSelectSession = (sessionId: string) => {
@@ -255,6 +282,10 @@ export default function ChatPage() {
       setMessages(session.messages);
       setMessage("");
       setAttachedImages([]);
+      // Close sidebar on mobile after selecting session
+      if (window.innerWidth < 1024) {
+        setSidebarOpen(false);
+      }
     }
   };
 
