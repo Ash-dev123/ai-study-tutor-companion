@@ -55,7 +55,7 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       {/* Floating Navigation Header */}
       <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl">
-        <div className="rounded-2xl border bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-lg px-4 py-3">
+        <div className="rounded-full border bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-lg px-4 py-3 transition-all duration-300 hover:shadow-2xl hover:scale-[1.01] hover:bg-background/90">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-8">
               <Link href="/" className="flex items-center gap-2 group">
